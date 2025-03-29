@@ -421,7 +421,7 @@ export default function Home() {
                     },
                   }}
                 >
-                  You can't stop the pace of change. But you can be ready for it.
+                  You can&apos;t stop the pace of change. But you can be ready for it.
                 </Typography>
                 <Typography 
                   variant="h5" 
