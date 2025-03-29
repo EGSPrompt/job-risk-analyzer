@@ -96,21 +96,38 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<RiskAnalysis | { error: string }>
 ) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  const { jobTitle, ageRange, industry, companySize, region } = req.body;
-
-  if (!jobTitle || !ageRange || !industry || !companySize || !region) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
   try {
-    const analysis = await calculateRiskScore(jobTitle, ageRange, industry, companySize, region);
-    res.status(200).json(analysis);
+    // Validate request method
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed. Only POST requests are accepted.' });
+    }
+
+    // Validate request body
+    const { jobTitle, ageRange, industry, companySize, region } = req.body;
+    
+    if (!jobTitle || !ageRange || !industry || !companySize || !region) {
+      return res.status(400).json({ 
+        error: 'Missing required fields. Please provide jobTitle, ageRange, industry, companySize, and region.' 
+      });
+    }
+
+    // Process the request
+    const analysis = await calculateRiskScore(
+      jobTitle,
+      ageRange,
+      industry,
+      companySize,
+      region
+    );
+
+    return res.status(200).json(analysis);
   } catch (error) {
-    console.error('Error in risk analysis:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    // Log the error for debugging
+    console.error('API Error:', error);
+    
+    // Return a generic error response
+    return res.status(500).json({ 
+      error: 'Internal Server Error. Please try again later.' 
+    });
   }
 } 
