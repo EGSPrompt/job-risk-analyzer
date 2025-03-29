@@ -99,7 +99,7 @@ export default async function handler(
   try {
     // Validate request method
     if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'Method not allowed. Only POST requests are accepted.' });
+      return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
     // Validate request body
@@ -126,8 +126,6 @@ export default async function handler(
     console.error('API Error:', error);
     
     // Return a generic error response
-    return res.status(500).json({ 
-      error: 'Internal Server Error. Please try again later.' 
-    });
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 } 
