@@ -2,7 +2,10 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import OpenAI from 'openai';
 
 interface InvestmentInsight {
-  content: string;
+  sections: {
+    title: string;
+    content: string;
+  }[];
 }
 
 // Initialize OpenAI client
@@ -11,76 +14,73 @@ const openai = new OpenAI({
 });
 
 async function generateInvestmentInsight(
-  category: string,
   jobTitle: string,
   industry: string,
   riskScore: number,
-  riskTier: string
+  riskTier: string,
+  skills: string[]
 ): Promise<InvestmentInsight> {
-  const prompts = {
-    'skills': `Analyze the essential skills needed for ${jobTitle} roles in the ${industry} sector to enhance career resilience:
+  const prompt = `Analyze investment opportunities and skill development paths for a ${jobTitle} in the ${industry} sector.
 
-Key points to address:
-- Critical technical skills for future-proofing
-- Essential soft skills and leadership capabilities
-- Emerging skill requirements in the industry
-- Skills that address current vulnerabilities (considering risk score: ${riskScore}, tier: ${riskTier})
-- Priority areas for immediate skill development
+Your response should be structured with the following sections:
 
-Format the response as a detailed analysis with clear sections and bullet points where appropriate.`,
+1. "Critical Skills Analysis"
+- Assessment of current skill set: ${skills.join(', ')}
+- Identification of skill gaps
+- Priority areas for improvement
+- Industry-specific requirements
 
-    'reskilling': `Provide specific reskilling recommendations for a ${jobTitle} in the ${industry} sector:
+2. "Strategic Learning Paths"
+- Recommended certifications
+- Training programs and courses
+- Self-learning resources
+- Estimated timelines
 
-Key points to address:
-- Recommended training programs and certifications
-- Online learning platforms and resources
-- Estimated time investment and costs
-- Priority order for skill acquisition
-- ROI considerations for different learning paths (considering risk score: ${riskScore}, tier: ${riskTier})
+3. "Career Transition Options"
+- Adjacent roles leveraging current skills
+- Growth potential in alternative paths
+- Required transitions steps
+- Risk vs. reward analysis
 
-Format the response as a detailed analysis with clear sections and bullet points where appropriate.`,
+4. "Investment Priorities"
+- High-impact learning investments
+- Cost-benefit analysis of options
+- Short-term vs long-term returns
+- Resource allocation strategy
 
-    'adjacent': `Identify and analyze adjacent career roles for a ${jobTitle} in the ${industry} sector:
+Consider their risk score of ${riskScore} and ${riskTier} risk tier in your analysis.
 
-Key points to address:
-- Closely related roles leveraging existing skills
-- Growth potential in adjacent positions
-- Required transitions and skill gaps
-- Market demand for alternative roles
-- Risk mitigation through role diversity (considering risk score: ${riskScore}, tier: ${riskTier})
-
-Format the response as a detailed analysis with clear sections and bullet points where appropriate.`
-  };
-
-  const categoryKey = category === 'Skills Needed' ? 'skills'
-    : category === 'Reskilling Options' ? 'reskilling'
-    : 'adjacent';
+Format the response as a JSON object with an array of sections, each having a "title" and "content" field.`;
 
   try {
     const completion = await openai.chat.completions.create({
       messages: [
         {
           role: "system",
-          content: `You are an expert career development advisor who specializes in skill development and career transitions.
-          Your recommendations should be:
+          content: `You are an expert career development advisor who provides strategic guidance on skill development 
+          and career investments. Your recommendations should be:
           - Specific and actionable
-          - Focused on practical skill development
-          - Based on current market demands
-          - Prioritized by impact and urgency
-          - Tailored to the individual's context and risk profile
-          - Include specific resources and next steps`
+          - Based on market demand
+          - Cost-conscious but impactful
+          - Focused on ROI
+          - Tailored to the individual's context
+          
+          Format your response as a JSON object with an array of sections, each containing a title and detailed content.`
         },
         {
           role: "user",
-          content: prompts[categoryKey]
+          content: prompt
         }
       ],
       model: "gpt-3.5-turbo",
       temperature: 0.7,
+      response_format: { type: "json_object" },
     });
 
+    const response = JSON.parse(completion.choices[0].message.content!);
+    
     return {
-      content: completion.choices[0].message.content || "No insight generated"
+      sections: response.sections || []
     };
   } catch (error) {
     console.error('Error generating investment insight:', error);
@@ -98,23 +98,23 @@ export default async function handler(
 
   try {
     const { 
-      category,
       jobTitle,
       industry,
       riskScore,
-      riskTier
+      riskTier,
+      skills
     } = req.body;
 
-    if (!category || !jobTitle || !industry || riskScore === undefined || !riskTier) {
+    if (!jobTitle || !industry || riskScore === undefined || !riskTier || !skills) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
     const insight = await generateInvestmentInsight(
-      category,
       jobTitle,
       industry,
       riskScore,
-      riskTier
+      riskTier,
+      skills
     );
 
     res.status(200).json(insight);
