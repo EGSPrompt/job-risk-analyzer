@@ -8,7 +8,8 @@ interface RiskAnalysis {
   summaryOfFindings: string;
   whatTheDataSays: string[];
   keyPotentialDisruptors: string[];
-  researchReferences: string[];
+  signalsOfDisruption: string[];
+  evolvingRolesAndSkills: string[];
 }
 
 // Validate OpenAI API key
@@ -64,11 +65,15 @@ async function analyzeRisk(
         "Innovation threats",
         "Economic factors"
       ],
-      "researchReferences": [
-        "Industry reports",
-        "Market analysis",
-        "Economic indicators",
-        "Regional studies"
+      "signalsOfDisruption": [
+        "Early warning signs",
+        "Current trends",
+        "Market indicators"
+      ],
+      "evolvingRolesAndSkills": [
+        "Emerging job roles",
+        "Critical future skills",
+        "Adaptation strategies"
       ]
     }`;
 
@@ -101,7 +106,8 @@ async function analyzeRisk(
       summaryOfFindings: response.summaryOfFindings,
       whatTheDataSays: response.whatTheDataSays,
       keyPotentialDisruptors: response.keyPotentialDisruptors,
-      researchReferences: response.researchReferences
+      signalsOfDisruption: response.signalsOfDisruption,
+      evolvingRolesAndSkills: response.evolvingRolesAndSkills
     };
   } catch (error) {
     console.error('Error in analyzeRisk:', error);
@@ -126,10 +132,15 @@ async function analyzeRisk(
         "Changing industry dynamics",
         "Economic factors"
       ],
-      researchReferences: [
-        "Industry trend reports",
-        "Market analysis studies",
-        "Economic forecasts"
+      signalsOfDisruption: [
+        "Industry adoption of new technologies",
+        "Changes in job postings and requirements",
+        "Market investment patterns"
+      ],
+      evolvingRolesAndSkills: [
+        "Emerging hybrid roles",
+        "Growing importance of digital literacy",
+        "Emphasis on adaptability and learning"
       ]
     };
   }

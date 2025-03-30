@@ -21,7 +21,8 @@ interface RiskAnalysis {
   summaryOfFindings: string;
   whatTheDataSays: string[];
   keyPotentialDisruptors: string[];
-  researchReferences: string[];
+  signalsOfDisruption: string[];
+  evolvingRolesAndSkills: string[];
 }
 
 const FormContainer = styled(Paper)(({ theme }) => ({
@@ -503,7 +504,7 @@ export default function Home() {
                   </Box>
                 </Box>
 
-                {/* Research References */}
+                {/* Signals of Disruption */}
                 <Box sx={{ mb: 4 }}>
                   <Typography 
                     variant="h6" 
@@ -513,7 +514,7 @@ export default function Home() {
                       mb: 2 
                     }}
                   >
-                    Explore the Research that Helped Inform This Perspective
+                    Signals of Disruption
                   </Typography>
                   <Box component="ul" sx={{ 
                     pl: 2,
@@ -525,10 +526,42 @@ export default function Home() {
                       }
                     }
                   }}>
-                    {result.researchReferences.map((reference, index) => (
+                    {result.signalsOfDisruption.map((signal, index) => (
                       <li key={index}>
                         <Typography sx={{ color: '#1a1a1a' }}>
-                          {reference}
+                          {signal}
+                        </Typography>
+                      </li>
+                    ))}
+                  </Box>
+                </Box>
+
+                {/* Evolving Roles & Skills */}
+                <Box sx={{ mb: 4 }}>
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      color: '#1a1a1a',
+                      fontWeight: 600,
+                      mb: 2 
+                    }}
+                  >
+                    Evolving Roles & Skills
+                  </Typography>
+                  <Box component="ul" sx={{ 
+                    pl: 2,
+                    m: 0,
+                    '& > li': {
+                      mb: 1,
+                      '&:last-child': {
+                        mb: 0
+                      }
+                    }
+                  }}>
+                    {result.evolvingRolesAndSkills.map((role, index) => (
+                      <li key={index}>
+                        <Typography sx={{ color: '#1a1a1a' }}>
+                          {role}
                         </Typography>
                       </li>
                     ))}
