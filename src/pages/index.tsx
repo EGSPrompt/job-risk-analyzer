@@ -218,15 +218,6 @@ export default function Home() {
     if (!resultCardRef.current || !result) return;
 
     try {
-      // Create a canvas from the result card
-      const canvas = await html2canvas(resultCardRef.current, {
-        background: '#ffffff',
-        logging: false,
-        useCORS: true,
-        width: resultCardRef.current.scrollWidth,
-        height: resultCardRef.current.scrollHeight
-      });
-
       // Initialize PDF with A4 format
       const pdf = new jsPDF({
         format: 'a4',
@@ -238,17 +229,28 @@ export default function Home() {
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 20;
+      let yPosition = margin;
 
-      // Calculate image dimensions to fit within margins
-      const availableWidth = pageWidth - (margin * 2);
-      const aspectRatio = canvas.height / canvas.width;
-      const imageWidth = availableWidth;
-      const imageHeight = imageWidth * aspectRatio;
+      // Helper function to add text with word wrap
+      const addWrappedText = (text: string, y: number, maxWidth: number = pageWidth - (margin * 2)) => {
+        const lines = pdf.splitTextToSize(text, maxWidth);
+        pdf.text(lines, margin, y);
+        return y + (lines.length * 7); // Return new Y position after text
+      };
+
+      // Helper function to check and add new page if needed
+      const checkAndAddPage = (requiredSpace: number) => {
+        if (yPosition + requiredSpace > pageHeight - margin) {
+          pdf.addPage();
+          yPosition = margin;
+        }
+      };
 
       // Add title
       pdf.setFontSize(24);
       pdf.setTextColor(66, 133, 244); // #4285f4
-      pdf.text('Job Risk Analysis Report', pageWidth / 2, margin, { align: 'center' });
+      pdf.text('Job Risk Analysis Report', pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 15;
 
       // Add date
       pdf.setFontSize(12);
@@ -258,11 +260,16 @@ export default function Home() {
         month: 'long',
         day: 'numeric'
       });
-      pdf.text(`Generated on ${date}`, pageWidth / 2, margin + 10, { align: 'center' });
+      pdf.text(`Generated on ${date}`, pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 15;
 
       // Add input parameters
+      checkAndAddPage(40);
       pdf.setFontSize(14);
-      pdf.text('Analysis Parameters:', margin, margin + 25);
+      pdf.setTextColor(26, 26, 26);
+      pdf.text('Analysis Parameters:', margin, yPosition);
+      yPosition += 8;
+
       pdf.setFontSize(12);
       const params = [
         `Job Title: ${formData.jobTitle}`,
@@ -271,25 +278,90 @@ export default function Home() {
         `Organization Size: ${formData.companySize}`,
         `Region: ${formData.region}`
       ];
-      pdf.text(params, margin, margin + 35);
+      params.forEach(param => {
+        pdf.text(param, margin, yPosition);
+        yPosition += 7;
+      });
+      yPosition += 10;
 
-      // Add the result card image
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      pdf.addImage(
-        imgData,
-        'PNG',
-        margin,
-        margin + 55,
-        imageWidth,
-        imageHeight
+      // Add Risk Level
+      checkAndAddPage(20);
+      pdf.setFontSize(18);
+      pdf.setTextColor(
+        result.riskTier === 'Low' ? 64 : 
+        result.riskTier === 'Moderate' ? 66 :
+        result.riskTier === 'High' ? 244 : 211,
+        result.riskTier === 'Low' ? 224 :
+        result.riskTier === 'Moderate' ? 133 :
+        result.riskTier === 'High' ? 67 : 47,
+        result.riskTier === 'Low' ? 208 :
+        result.riskTier === 'Moderate' ? 244 :
+        result.riskTier === 'High' ? 54 : 47
       );
+      pdf.text(`${result.riskTier} Risk`, pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 15;
 
-      // Check if we need a new page for the footer
-      if ((margin + 55 + imageHeight + 20) > pageHeight) {
-        pdf.addPage();
-      }
+      // Add Summary of Findings
+      checkAndAddPage(40);
+      pdf.setFontSize(16);
+      pdf.setTextColor(26, 26, 26);
+      pdf.text('Summary of Findings', margin, yPosition);
+      yPosition += 8;
+      pdf.setFontSize(12);
+      yPosition = addWrappedText(result.summaryOfFindings, yPosition) + 10;
 
-      // Add footer
+      // Add What the Data Says
+      checkAndAddPage(40);
+      pdf.setFontSize(16);
+      pdf.text('What the Data Says', margin, yPosition);
+      yPosition += 8;
+      pdf.setFontSize(12);
+      result.whatTheDataSays.forEach(point => {
+        checkAndAddPage(15);
+        pdf.text('•', margin, yPosition);
+        yPosition = addWrappedText(point, yPosition, pageWidth - (margin * 2 + 8)) + 5;
+      });
+      yPosition += 5;
+
+      // Add Key Potential Disruptors
+      checkAndAddPage(40);
+      pdf.setFontSize(16);
+      pdf.text('Key Potential Disruptors', margin, yPosition);
+      yPosition += 8;
+      pdf.setFontSize(12);
+      result.keyPotentialDisruptors.forEach(point => {
+        checkAndAddPage(15);
+        pdf.text('•', margin, yPosition);
+        yPosition = addWrappedText(point, yPosition, pageWidth - (margin * 2 + 8)) + 5;
+      });
+      yPosition += 5;
+
+      // Add Signals of Disruption
+      checkAndAddPage(40);
+      pdf.setFontSize(16);
+      pdf.text('Signals of Disruption', margin, yPosition);
+      yPosition += 8;
+      pdf.setFontSize(12);
+      result.signalsOfDisruption.forEach(point => {
+        checkAndAddPage(15);
+        pdf.text('•', margin, yPosition);
+        yPosition = addWrappedText(point, yPosition, pageWidth - (margin * 2 + 8)) + 5;
+      });
+      yPosition += 5;
+
+      // Add Evolving Roles & Skills
+      checkAndAddPage(40);
+      pdf.setFontSize(16);
+      pdf.text('Evolving Roles & Skills', margin, yPosition);
+      yPosition += 8;
+      pdf.setFontSize(12);
+      result.evolvingRolesAndSkills.forEach(point => {
+        checkAndAddPage(15);
+        pdf.text('•', margin, yPosition);
+        yPosition = addWrappedText(point, yPosition, pageWidth - (margin * 2 + 8)) + 5;
+      });
+
+      // Add footer on last page
       pdf.setFontSize(10);
       pdf.setTextColor(128, 128, 128);
       pdf.text(
