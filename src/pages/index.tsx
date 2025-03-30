@@ -461,7 +461,7 @@ export default function Home() {
                   <Box sx={{ textAlign: 'center' }}>
                     <Link 
                       href={{
-                        pathname: '/premium-insights',
+                        pathname: '/premium_insights',
                         query: {
                           ...formData,
                           riskScore: result?.riskScore,
@@ -469,7 +469,6 @@ export default function Home() {
                           summary: result?.summary
                         }
                       }} 
-                      passHref
                     >
                       <PremiumButton>
                         Get Premium Insights
