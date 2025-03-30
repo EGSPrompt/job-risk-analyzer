@@ -12,114 +12,53 @@ import {
   Fade,
   Grid,
 } from '@mui/material';
-import { ThemeProvider, useTheme } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import { theme } from '../styles/theme';
 import { styled } from '@mui/material/styles';
 
 type RiskLevel = 'Low' | 'Moderate' | 'High' | 'Critical';
 
 // Styled components
-const PageContainer = styled(Container)(({ theme }) => ({
-  minHeight: '100vh',
-  paddingTop: theme.spacing(4),
-  paddingBottom: theme.spacing(4),
-  background: 'linear-gradient(to bottom, #000000, #1a1a1a)',
-}));
-
-const Header = styled(Typography)(({ theme }) => ({
-  fontSize: '2.5rem',
-  fontWeight: 'bold',
-  marginBottom: theme.spacing(4),
-  textAlign: 'center',
-  background: 'linear-gradient(45deg, #00e5ff, #2979ff)',
-  WebkitBackgroundClip: 'text',
-  WebkitTextFillColor: 'transparent',
-  textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
-}));
-
-const SectionCard = styled(Box)(({ theme }) => ({
-  background: 'rgba(255, 255, 255, 0.05)',
-  borderRadius: theme.spacing(2),
-  padding: theme.spacing(3),
+const CategoryTitle = styled(Typography)(({ theme }) => ({
+  fontSize: '1.75rem',
+  fontWeight: 600,
   marginBottom: theme.spacing(3),
-  cursor: 'pointer',
-  transition: 'all 0.3s ease',
+  background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)',
+  WebkitBackgroundClip: 'text',
+  backgroundClip: 'text',
+  color: 'transparent',
+  textShadow: '0 0 20px rgba(255, 255, 255, 0.1)',
+}));
+
+const SectionCard = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(4),
+  background: 'rgba(28, 34, 55, 0.8)',
+  borderRadius: 16,
   backdropFilter: 'blur(10px)',
   border: '1px solid rgba(255, 255, 255, 0.1)',
+  transition: 'all 0.3s ease',
   '&:hover': {
-    transform: 'translateY(-5px)',
-    boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
-    background: 'rgba(255, 255, 255, 0.08)',
+    transform: 'translateY(-2px)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
   },
 }));
 
 const SectionTitle = styled(Typography)(({ theme }) => ({
-  fontSize: '1.5rem',
-  fontWeight: 'bold',
+  fontSize: '2rem',
+  fontWeight: 600,
   marginBottom: theme.spacing(2),
-  background: 'linear-gradient(45deg, #00e5ff, #2979ff)',
+  color: '#4ECDC4',
+  background: 'linear-gradient(135deg, #4ECDC4 0%, #556270 100%)',
   WebkitBackgroundClip: 'text',
+  backgroundClip: 'text',
   WebkitTextFillColor: 'transparent',
 }));
 
-const SectionDescription = styled(Typography)({
-  color: '#ffffff',
+const SectionDescription = styled(Typography)(({ theme }) => ({
+  color: 'rgba(255, 255, 255, 0.9)',
+  fontSize: '1rem',
+  lineHeight: 1.6,
   textAlign: 'center',
-  marginBottom: '16px',
-});
-
-const ContentSection = styled(Box)(({ theme }) => ({
-  background: 'rgba(255, 255, 255, 0.03)',
-  borderRadius: theme.spacing(2),
-  padding: theme.spacing(3),
-  marginBottom: theme.spacing(3),
-  border: '1px solid rgba(255, 255, 255, 0.05)',
-}));
-
-const ContentTitle = styled(Typography)(({ theme }) => ({
-  fontSize: '1.25rem',
-  fontWeight: 'bold',
-  marginBottom: theme.spacing(2),
-  color: theme.palette.primary.main,
-}));
-
-const ContentText = styled(Typography)({
-  color: '#ffffff',
-  whiteSpace: 'pre-line',
-});
-
-const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
-  width: '100%',
-  marginBottom: theme.spacing(3),
-  '& .MuiButton-root': {
-    flex: 1,
-    color: 'white',
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    '&:hover': {
-      borderColor: 'rgba(255, 255, 255, 0.5)',
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    },
-    '&.active': {
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-      borderColor: 'rgba(255, 255, 255, 0.5)',
-    }
-  }
-}));
-
-const StyledTextField = styled(TextField)(({ theme }) => ({
-  marginBottom: theme.spacing(2),
-  '& .MuiOutlinedInput-root': {
-    color: 'white',
-    '& fieldset': {
-      borderColor: 'rgba(255, 255, 255, 0.3)',
-    },
-    '&:hover fieldset': {
-      borderColor: 'rgba(255, 255, 255, 0.5)',
-    },
-    '&.Mui-focused fieldset': {
-      borderColor: 'rgba(255, 255, 255, 0.7)',
-    },
-  },
 }));
 
 interface UserData {
@@ -140,43 +79,41 @@ interface PathwayInsight {
   reflection: string;
 }
 
-interface ExplorationInsight {
-  title: string;
-  sections: {
-    title: string;
-    content: string;
-  }[];
-}
-
-interface InvestmentInsight {
-  title: string;
-  sections: {
-    title: string;
-    content: string;
-  }[];
-}
-
-interface InsightResponse {
-  sections: {
-    title: string;
-    content: string;
-  }[];
-}
-
 const PremiumInsights = () => {
   const router = useRouter();
-  const theme = useTheme();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  // Initialize with 'explore' section selected
   const [selectedSection, setSelectedSection] = useState('explore');
-  const [insights, setInsights] = useState<InsightResponse | null>(null);
-  const [pathwayType, setPathwayType] = useState<'business' | 'career'>('business');
-  const [targetCareer, setTargetCareer] = useState('');
+  const [activeExplore, setActiveExplore] = useState<string | null>(null);
+  const [exploreLoading, setExploreLoading] = useState(false);
+  const [exploreInsight, setExploreInsight] = useState<string | null>(null);
 
-  const { jobTitle, ageRange, industry, companySize, region, riskScore, riskTier, summary, skills } = router.query;
+  const [activeInvest, setActiveInvest] = useState('Skills Needed');
+  const [investLoading, setInvestLoading] = useState(false);
+  const [investInsight, setInvestInsight] = useState<string | null>(null);
+
+  const [pathwayInsight, setPathwayInsight] = useState<PathwayInsight | null>(null);
+  const [pathwayLoading, setPathwayLoading] = useState(false);
+  const [businessInput, setBusinessInput] = useState('');
+  const [careerInput, setCareerInput] = useState('');
+  const [showBusinessInput, setShowBusinessInput] = useState(false);
+  const [showCareerInput, setShowCareerInput] = useState(false);
 
   useEffect(() => {
     if (router.isReady) {
+      const {
+        jobTitle,
+        ageRange,
+        industry,
+        companySize,
+        region,
+        riskScore,
+        riskTier,
+        summary
+      } = router.query;
+
       if (jobTitle && ageRange && industry && companySize && region && riskScore && riskTier && summary) {
         setUserData({
           jobTitle: String(jobTitle),
@@ -196,147 +133,544 @@ const PremiumInsights = () => {
     }
   }, [router.isReady, router.query]);
 
-  useEffect(() => {
-    if (!jobTitle || !industry || !riskScore || !riskTier) {
-      router.push('/');
-      return;
-    }
+  const fetchPathwayInsight = async (pathwayType: 'business' | 'career', input: string, userData: UserData): Promise<PathwayInsight> => {
+    try {
+      const response = await fetch('/api/pathways-insights', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          pathwayType,
+          input,
+          jobTitle: userData.jobTitle,
+          industry: userData.industry,
+          ageRange: userData.ageRange,
+          region: userData.region,
+        }),
+      });
 
-    const fetchInsights = async () => {
-      setLoading(true);
-      try {
-        let endpoint = '';
-        let payload: any = {
-          jobTitle,
-          industry,
-          riskScore: Number(riskScore),
-          riskTier
-        };
-
-        switch (selectedSection) {
-          case 'explore':
-            endpoint = '/api/explore-insights';
-            payload.category = 'Industry & Market Trends';
-            break;
-          case 'invest':
-            endpoint = '/api/invest-insights';
-            payload.skills = (skills as string || '').split(',').map(s => s.trim());
-            break;
-          case 'pathways':
-            endpoint = '/api/pathways-insights';
-            if (pathwayType === 'business') {
-              payload.category = 'Start Your Own Business';
-            } else {
-              payload.category = 'Switch Careers';
-              payload.targetCareer = targetCareer;
-            }
-            break;
-        }
-
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) throw new Error('Failed to fetch insights');
-        
-        const data = await response.json();
-        setInsights(data);
-      } catch (error) {
-        console.error('Error fetching insights:', error);
-        setInsights(null);
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error('Failed to fetch pathway insights');
       }
-    };
 
-    if (selectedSection === 'pathways' && pathwayType === 'career' && !targetCareer) {
-      setInsights(null);
-      setLoading(false);
-      return;
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching pathway insight:', error);
+      throw error;
     }
+  };
 
-    fetchInsights();
-  }, [jobTitle, industry, riskScore, riskTier, skills, selectedSection, pathwayType, targetCareer]);
+  const handlePathwaySubmit = async (type: 'business' | 'career') => {
+    if (!userData) return;
+    setPathwayLoading(true);
+    try {
+      const input = type === 'business' ? businessInput : careerInput;
+      const insight = await fetchPathwayInsight(type, input, userData);
+      setPathwayInsight(insight);
+    } catch (error) {
+      console.error('Error fetching pathway insight:', error);
+    } finally {
+      setPathwayLoading(false);
+    }
+  };
+
+  const fetchExplorationInsight = async (category: string) => {
+    if (!userData) return;
+    setExploreLoading(true);
+    try {
+      const response = await fetch('/api/explore-insights', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          category,
+          jobTitle: userData.jobTitle,
+          industry: userData.industry,
+          riskScore: userData.riskScore,
+          riskTier: userData.riskTier,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch exploration insight');
+      }
+
+      const data = await response.json();
+      setExploreInsight(data.content);
+    } catch (error) {
+      console.error('Error fetching exploration insight:', error);
+      setExploreInsight('Failed to load insight. Please try again.');
+    } finally {
+      setExploreLoading(false);
+    }
+  };
+
+  const handleExploreClick = (category: string) => {
+    setActiveExplore(category);
+    fetchExplorationInsight(category);
+  };
+
+  const fetchInvestmentInsight = async (category: string) => {
+    if (!userData) return;
+    setInvestLoading(true);
+    try {
+      const response = await fetch('/api/invest-insights', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          category,
+          jobTitle: userData.jobTitle,
+          industry: userData.industry,
+          riskScore: userData.riskScore,
+          riskTier: userData.riskTier,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch investment insight');
+      }
+      
+      const data = await response.json();
+      setInvestInsight(data.content);
+    } catch (error) {
+      console.error('Error fetching investment insight:', error);
+      setInvestInsight('Failed to load insight. Please try again.');
+    } finally {
+      setInvestLoading(false);
+    }
+  };
+
+  const handleInvestClick = (category: string) => {
+    setActiveInvest(category);
+    fetchInvestmentInsight(category);
+  };
 
   return (
     <ThemeProvider theme={theme}>
-      <PageContainer maxWidth="lg">
-        <Header variant="h1">Premium Insights</Header>
-
-        <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={3} mb={4}>
-          <SectionCard onClick={() => setSelectedSection('explore')}>
-            <SectionTitle>Explore Your Score</SectionTitle>
-            <SectionDescription>
-              Deep dive into industry trends, market dynamics, and risk factors affecting your role
-            </SectionDescription>
-          </SectionCard>
-
-          <SectionCard onClick={() => setSelectedSection('invest')}>
-            <SectionTitle>Invest in Yourself</SectionTitle>
-            <SectionDescription>
-              Strategic recommendations for skill development and career enhancement
-            </SectionDescription>
-          </SectionCard>
-
-          <SectionCard onClick={() => setSelectedSection('pathways')}>
-            <SectionTitle>Other Pathways</SectionTitle>
-            <SectionDescription>
-              Explore entrepreneurship, freelancing, and teaching opportunities
-            </SectionDescription>
-          </SectionCard>
-        </Box>
-
-        {selectedSection === 'pathways' && (
-          <>
-            <StyledButtonGroup>
-              <Button
-                onClick={() => {
-                  setPathwayType('business');
-                  setTargetCareer('');
-                }}
-                className={pathwayType === 'business' ? 'active' : ''}
-              >
-                Start Your Own Business
-              </Button>
-              <Button
-                onClick={() => setPathwayType('career')}
-                className={pathwayType === 'career' ? 'active' : ''}
-              >
-                Switch Careers
-              </Button>
-            </StyledButtonGroup>
-
-            {pathwayType === 'career' && (
-              <StyledTextField
-                fullWidth
-                variant="outlined"
-                placeholder="What career would you like to transition into?"
-                value={targetCareer}
-                onChange={(e) => setTargetCareer(e.target.value)}
-              />
-            )}
-          </>
-        )}
-
-        {loading ? (
-          <Typography color="white" textAlign="center">Loading insights...</Typography>
-        ) : insights?.sections ? (
-          insights.sections.map((section, index) => (
-            <ContentSection key={index}>
-              <ContentTitle>{section.title}</ContentTitle>
-              <ContentText>{section.content}</ContentText>
-            </ContentSection>
-          ))
-        ) : (
-          <Typography color="white" textAlign="center">
-            {selectedSection === 'pathways' && pathwayType === 'career' && !targetCareer
-              ? "Please enter the career you'd like to transition into"
-              : "No insights available"}
+      <Box sx={{ 
+        minHeight: '100vh',
+        background: '#000',
+        color: 'white',
+        pt: 4,
+        position: 'relative',
+        overflow: 'hidden',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `url(images/digital-arrows-background.jpg)`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          opacity: 0.8,
+          filter: 'brightness(1.2) contrast(1.1)',
+        },
+        '&::after': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'linear-gradient(135deg, rgba(0,0,20,0.65) 0%, rgba(0,10,60,0.75) 100%)',
+        },
+      }}>
+        <Container maxWidth="lg" sx={{ 
+          py: 4,
+          position: 'relative',
+          zIndex: 2,
+        }}>
+          {/* Premium Insights Header */}
+          <Typography variant="h3" sx={{
+            textAlign: 'center',
+            mb: 6,
+            fontWeight: 600,
+            background: 'linear-gradient(135deg, #4ECDC4 0%, #556270 100%)',
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            textShadow: '0 2px 10px rgba(78, 205, 196, 0.2)',
+          }}>
+            Premium Insights
           </Typography>
-        )}
-      </PageContainer>
+
+          {/* Section Cards */}
+          <Grid container spacing={3} sx={{ mb: 6 }}>
+            <Grid item xs={12} md={4}>
+              <SectionCard onClick={() => setSelectedSection('explore')}>
+                <SectionTitle>
+                  Explore Your Score
+                </SectionTitle>
+                <SectionDescription>
+                  Understand your risk assessment in detail and learn what factors influence your score.
+                </SectionDescription>
+              </SectionCard>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <SectionCard onClick={() => setSelectedSection('invest')}>
+                <SectionTitle>
+                  Invest in Yourself
+                </SectionTitle>
+                <SectionDescription>
+                  Discover personalized recommendations for skills and training to enhance your career resilience.
+                </SectionDescription>
+              </SectionCard>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <SectionCard onClick={() => setSelectedSection('pathways')}>
+                <SectionTitle>
+                  Other Pathways
+                </SectionTitle>
+                <SectionDescription>
+                  Explore alternative career paths and opportunities aligned with your skills and interests.
+                </SectionDescription>
+              </SectionCard>
+            </Grid>
+          </Grid>
+
+          {/* Loading State */}
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <>
+              {/* Explore Your Score Section */}
+              {selectedSection === 'explore' && (
+                <Box>
+                  <CategoryTitle>Explore Your Score</CategoryTitle>
+                  
+                  <ButtonGroup 
+                    variant="outlined" 
+                    sx={{ 
+                      width: '100%', 
+                      mb: 4,
+                      '& .MuiButton-root': {
+                        flex: 1,
+                        color: 'white',
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                        '&:hover': {
+                          borderColor: 'rgba(255, 255, 255, 0.5)',
+                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        },
+                        '&.active': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                          borderColor: 'rgba(255, 255, 255, 0.5)',
+                        }
+                      }
+                    }}
+                  >
+                    {['Industry & Market Trends', 'Technology Disruptors', 'Key Role Considerations'].map((category) => (
+                      <Button
+                        key={category}
+                        onClick={() => handleExploreClick(category)}
+                        className={activeExplore === category ? 'active' : ''}
+                      >
+                        {category}
+                      </Button>
+                    ))}
+                  </ButtonGroup>
+
+                  {exploreLoading ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                      <CircularProgress />
+                    </Box>
+                  ) : exploreInsight && (
+                    <Fade in>
+                      <Paper sx={{ 
+                        p: 4, 
+                        borderRadius: 3,
+                        background: '#ffffff',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        color: '#1a1a1a',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                        transition: 'all 0.3s ease',
+                      }}>
+                        <Typography sx={{ whiteSpace: 'pre-line' }}>
+                          {exploreInsight}
+                        </Typography>
+                      </Paper>
+                    </Fade>
+                  )}
+                </Box>
+              )}
+
+              {/* Invest in Yourself Section */}
+              {selectedSection === 'invest' && (
+                <Box>
+                  <CategoryTitle>Invest in Yourself</CategoryTitle>
+                  
+                  <ButtonGroup 
+                    variant="outlined" 
+                    sx={{ 
+                      width: '100%', 
+                      mb: 4,
+                      '& .MuiButton-root': {
+                        flex: 1,
+                        color: 'white',
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                        '&:hover': {
+                          borderColor: 'rgba(255, 255, 255, 0.5)',
+                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        },
+                        '&.active': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                          borderColor: 'rgba(255, 255, 255, 0.5)',
+                        }
+                      }
+                    }}
+                  >
+                    {['Skills Needed', 'Reskilling Options', 'Adjacent Roles'].map((category) => (
+                      <Button
+                        key={category}
+                        onClick={() => handleInvestClick(category)}
+                        className={activeInvest === category ? 'active' : ''}
+                      >
+                        {category}
+                      </Button>
+                    ))}
+                  </ButtonGroup>
+
+                  {investLoading ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                      <CircularProgress />
+                    </Box>
+                  ) : investInsight && (
+                    <Fade in>
+                      <Paper sx={{ 
+                        p: 4, 
+                        borderRadius: 3,
+                        background: '#ffffff',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        color: '#1a1a1a',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                        transition: 'all 0.3s ease',
+                      }}>
+                        <Typography sx={{ whiteSpace: 'pre-line' }}>
+                          {investInsight}
+                        </Typography>
+                      </Paper>
+                    </Fade>
+                  )}
+                </Box>
+              )}
+
+              {/* Other Pathways Section */}
+              {selectedSection === 'pathways' && (
+                <Box>
+                  <CategoryTitle>Other Pathways</CategoryTitle>
+                  
+                  <ButtonGroup 
+                    variant="outlined" 
+                    sx={{ 
+                      width: '100%', 
+                      mb: 4,
+                      '& .MuiButton-root': {
+                        flex: 1,
+                        color: 'white',
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                        '&:hover': {
+                          borderColor: 'rgba(255, 255, 255, 0.5)',
+                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        }
+                      }
+                    }}
+                  >
+                    <Button
+                      onClick={() => {
+                        setShowBusinessInput(true);
+                        setShowCareerInput(false);
+                      }}
+                      sx={{
+                        backgroundColor: showBusinessInput ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
+                      }}
+                    >
+                      Start Your Own Business
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setShowBusinessInput(false);
+                        setShowCareerInput(true);
+                      }}
+                      sx={{
+                        backgroundColor: showCareerInput ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
+                      }}
+                    >
+                      Switch Careers
+                    </Button>
+                  </ButtonGroup>
+
+                  {showBusinessInput && (
+                    <Box sx={{ mb: 3 }}>
+                      <TextField
+                        fullWidth
+                        multiline
+                        rows={3}
+                        variant="outlined"
+                        placeholder="Describe your business idea..."
+                        value={businessInput}
+                        onChange={(e) => setBusinessInput(e.target.value)}
+                        sx={{
+                          mb: 2,
+                          '& .MuiOutlinedInput-root': {
+                            color: 'white',
+                            '& fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.3)',
+                            },
+                            '&:hover fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.5)',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.7)',
+                            },
+                          },
+                        }}
+                      />
+                      <Button
+                        variant="contained"
+                        onClick={() => handlePathwaySubmit('business')}
+                        disabled={!businessInput.trim()}
+                        sx={{
+                          backgroundColor: '#4285f4',
+                          '&:hover': {
+                            backgroundColor: '#2b76f5',
+                          },
+                        }}
+                      >
+                        Analyze Business Idea
+                      </Button>
+                    </Box>
+                  )}
+
+                  {showCareerInput && (
+                    <Box sx={{ mb: 3 }}>
+                      <TextField
+                        fullWidth
+                        multiline
+                        rows={3}
+                        variant="outlined"
+                        placeholder="What field or career would you like to transition into?"
+                        value={careerInput}
+                        onChange={(e) => setCareerInput(e.target.value)}
+                        sx={{
+                          mb: 2,
+                          '& .MuiOutlinedInput-root': {
+                            color: 'white',
+                            '& fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.3)',
+                            },
+                            '&:hover fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.5)',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.7)',
+                            },
+                          },
+                        }}
+                      />
+                      <Button
+                        variant="contained"
+                        onClick={() => handlePathwaySubmit('career')}
+                        disabled={!careerInput.trim()}
+                        sx={{
+                          backgroundColor: '#4285f4',
+                          '&:hover': {
+                            backgroundColor: '#2b76f5',
+                          },
+                        }}
+                      >
+                        Analyze Career Switch
+                      </Button>
+                    </Box>
+                  )}
+
+                  {pathwayLoading && (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                      <CircularProgress />
+                    </Box>
+                  )}
+                  
+                  {pathwayInsight && (
+                    <Fade in>
+                      <Paper sx={{ 
+                        p: 4, 
+                        mt: 3, 
+                        borderRadius: 3,
+                        background: '#ffffff',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        color: '#1a1a1a',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                        transition: 'all 0.3s ease',
+                      }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                          <Box>
+                            <Typography variant="h6" sx={{ 
+                              color: '#4285f4',
+                              mb: 1,
+                              fontWeight: 600 
+                            }}>
+                              Analysis
+                            </Typography>
+                            <Typography sx={{ whiteSpace: 'pre-line' }}>
+                              {pathwayInsight.analysis}
+                            </Typography>
+                          </Box>
+
+                          <Box>
+                            <Typography variant="h6" sx={{ 
+                              color: '#4285f4',
+                              mb: 1,
+                              fontWeight: 600 
+                            }}>
+                              Key Factors to Consider
+                            </Typography>
+                            <Typography sx={{ whiteSpace: 'pre-line' }}>
+                              {pathwayInsight.keyFactors}
+                            </Typography>
+                          </Box>
+
+                          <Box>
+                            <Typography variant="h6" sx={{ 
+                              color: '#4285f4',
+                              mb: 1,
+                              fontWeight: 600 
+                            }}>
+                              Next Steps
+                            </Typography>
+                            <Typography sx={{ whiteSpace: 'pre-line' }}>
+                              {pathwayInsight.nextSteps}
+                            </Typography>
+                          </Box>
+
+                          <Box>
+                            <Typography variant="h6" sx={{ 
+                              color: '#4285f4',
+                              mb: 1,
+                              fontWeight: 600 
+                            }}>
+                              {showBusinessInput ? 'Strategic Questions to Consider' : 'Transition Plan'}
+                            </Typography>
+                            <Typography sx={{ whiteSpace: 'pre-line' }}>
+                              {pathwayInsight.reflection}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Paper>
+                    </Fade>
+                  )}
+                </Box>
+              )}
+            </>
+          )}
+        </Container>
+      </Box>
     </ThemeProvider>
   );
 };
