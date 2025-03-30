@@ -166,7 +166,7 @@ const Home: NextPage = () => {
     setError(null);
     
     try {
-      const response = await fetch('/risk-analyzer/api/analyze-risk', {
+      const response = await fetch('/api/analyze-risk', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
