@@ -67,9 +67,11 @@ interface UserData {
   industry: string;
   companySize: string;
   region: string;
-  riskScore: number;
   riskTier: RiskLevel;
-  summary: string;
+  summaryOfFindings: string;
+  whatTheDataSays: string[];
+  keyPotentialDisruptors: string[];
+  researchReferences: string[];
 }
 
 interface ExplorationInsight {
@@ -124,22 +126,27 @@ const PremiumInsights = () => {
         industry,
         companySize,
         region,
-        riskScore,
         riskTier,
-        summary
+        summaryOfFindings,
+        whatTheDataSays,
+        keyPotentialDisruptors,
+        researchReferences
       } = router.query;
 
-      if (jobTitle && ageRange && industry && companySize && region && riskScore && riskTier && summary) {
+      if (jobTitle && ageRange && industry && companySize && region && riskTier && summaryOfFindings) {
         setUserData({
           jobTitle: String(jobTitle),
           ageRange: String(ageRange),
           industry: String(industry),
           companySize: String(companySize),
           region: String(region),
-          riskScore: Number(riskScore),
           riskTier: String(riskTier) as RiskLevel,
-          summary: String(summary)
+          summaryOfFindings: String(summaryOfFindings),
+          whatTheDataSays: JSON.parse(String(whatTheDataSays || '[]')),
+          keyPotentialDisruptors: JSON.parse(String(keyPotentialDisruptors || '[]')),
+          researchReferences: JSON.parse(String(researchReferences || '[]'))
         });
+        console.log('Premium Insights Data:', userData); // Temporary log to verify structure
       } else {
         // If we don't have all the required data, redirect back to the form
         router.push('/');
@@ -203,7 +210,6 @@ const PremiumInsights = () => {
           category,
           jobTitle: userData.jobTitle,
           industry: userData.industry,
-          riskScore: userData.riskScore,
           riskTier: userData.riskTier,
         }),
       });
@@ -240,7 +246,6 @@ const PremiumInsights = () => {
           category,
           jobTitle: userData.jobTitle,
           industry: userData.industry,
-          riskScore: userData.riskScore,
           riskTier: userData.riskTier,
           skills: [], // Add skills array if available
         }),

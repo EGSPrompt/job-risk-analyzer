@@ -14,12 +14,14 @@ import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-type RiskLevel = 'Low' | 'Moderate' | 'High' | 'Critical';
+type RiskLevel = 'Low' | 'Moderate' | 'High' | 'Very High';
 
 interface RiskAnalysis {
-  riskScore: number;
   riskTier: RiskLevel;
-  summary: string;
+  summaryOfFindings: string;
+  whatTheDataSays: string[];
+  keyPotentialDisruptors: string[];
+  researchReferences: string[];
 }
 
 const FormContainer = styled(Paper)(({ theme }) => ({
@@ -213,6 +215,7 @@ export default function Home() {
       }
 
       const data = await response.json();
+      console.log('API Response:', data); // Temporary log to verify structure
       setResult(data);
     } catch (error) {
       console.error('Error analyzing risk:', error);
@@ -416,7 +419,9 @@ export default function Home() {
               <ResultCard>
                 <Box sx={{ textAlign: 'center', mb: 4 }}>
                   <RiskScore>
-                    {result.riskScore}
+                    {result.riskTier === 'Very High' ? '90+' :
+                     result.riskTier === 'High' ? '65-89' :
+                     result.riskTier === 'Moderate' ? '35-64' : '0-34'}
                   </RiskScore>
                   <Typography 
                     variant="h4" 
@@ -440,7 +445,7 @@ export default function Home() {
                     lineHeight: 1.6,
                   }}
                 >
-                  {result.summary}
+                  {result.summaryOfFindings}
                 </Typography>
                 
                 <Box sx={{ mt: 4, textAlign: 'center' }}>
@@ -453,9 +458,11 @@ export default function Home() {
                         industry: formData.industry,
                         companySize: formData.companySize,
                         region: formData.region,
-                        riskScore: result.riskScore,
                         riskTier: result.riskTier,
-                        summary: result.summary
+                        summaryOfFindings: result.summaryOfFindings,
+                        whatTheDataSays: JSON.stringify(result.whatTheDataSays),
+                        keyPotentialDisruptors: JSON.stringify(result.keyPotentialDisruptors),
+                        researchReferences: JSON.stringify(result.researchReferences)
                       }
                     }}
                     passHref
