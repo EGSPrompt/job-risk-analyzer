@@ -192,11 +192,9 @@ export default function Home() {
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ 
-        minHeight: '100vh',
         background: 'transparent',
         color: 'white',
         position: 'relative',
-        overflow: 'hidden',
       }}>
         <Container maxWidth="lg">
           <FormContainer id="risk-assessment-form">
