@@ -9,7 +9,6 @@ import {
   Paper,
   CircularProgress,
   FormHelperText,
-  useTheme,
 } from '@mui/material';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 
@@ -25,6 +24,7 @@ const FormContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(6),
   maxWidth: 600,
   margin: '0 auto',
+  marginTop: theme.spacing(4),
   borderRadius: theme.spacing(3),
   background: 'rgba(255, 255, 255, 0.02)',
   backdropFilter: 'blur(10px)',
