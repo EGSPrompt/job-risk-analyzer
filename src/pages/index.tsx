@@ -11,12 +11,13 @@ import {
   FormHelperText,
 } from '@mui/material';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
+import type { NextPage } from 'next';
 
 type RiskLevel = 'Low' | 'Moderate' | 'High' | 'Critical';
 
 interface RiskAnalysis {
   riskScore: number;
-  riskTier: 'Low' | 'Moderate' | 'High' | 'Critical';
+  riskTier: RiskLevel;
   summary: string;
 }
 
@@ -140,7 +141,7 @@ const theme = createTheme({
   },
 });
 
-export default function Home() {
+const Home: NextPage = () => {
   const [formData, setFormData] = useState({
     jobTitle: '',
     ageRange: '',
@@ -443,4 +444,6 @@ export default function Home() {
       </Box>
     </ThemeProvider>
   );
-} 
+};
+
+export default Home; 
