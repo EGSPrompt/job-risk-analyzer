@@ -53,31 +53,49 @@ Consider their risk score of ${riskScore} and ${riskTier} risk tier in your anal
 Format the response as a JSON object with an array of sections, each having a "title" and "content" field.`;
 
   try {
-    const completion = await openai.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert career development advisor who provides strategic guidance on skill development 
-          and career investments. Your recommendations should be:
-          - Specific and actionable
-          - Based on market demand
-          - Cost-conscious but impactful
-          - Focused on ROI
-          - Tailored to the individual's context
-          
-          Format your response as a JSON object with an array of sections, each containing a title and detailed content.`
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      model: "gpt-3.5-turbo",
-      temperature: 0.7,
-      response_format: { type: "json_object" },
+    // Create a thread
+    const thread = await openai.beta.threads.create();
+
+    // Add a message to the thread
+    await openai.beta.threads.messages.create(thread.id, {
+      role: "user",
+      content: prompt
     });
 
-    const response = JSON.parse(completion.choices[0].message.content!);
+    // Run the Assistant
+    const run = await openai.beta.threads.runs.create(thread.id, {
+      assistant_id: "asst_WUFm7dYA56F9ikZa28OSPt3M",
+      instructions: `You are an expert career development advisor who provides strategic guidance on skill development 
+      and career investments. Your recommendations should be:
+      - Specific and actionable
+      - Based on market demand
+      - Cost-conscious but impactful
+      - Focused on ROI
+      - Tailored to the individual's context
+      
+      Format your response as a JSON object with an array of sections, each containing a title and detailed content.`
+    });
+
+    // Wait for the run to complete
+    let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+    while (runStatus.status !== "completed") {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+      
+      if (runStatus.status === "failed" || runStatus.status === "cancelled") {
+        throw new Error(`Run ended with status: ${runStatus.status}`);
+      }
+    }
+
+    // Get the messages
+    const messages = await openai.beta.threads.messages.list(thread.id);
+    const lastMessageContent = messages.data[0].content[0];
+    
+    if (lastMessageContent.type !== 'text') {
+      throw new Error('Expected text response from assistant');
+    }
+
+    const response = JSON.parse(lastMessageContent.text.value);
     
     return {
       sections: response.sections || []

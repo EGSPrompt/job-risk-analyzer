@@ -2,10 +2,11 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import OpenAI from 'openai';
 
 interface ExplorationInsight {
-  sections: {
-    title: string;
-    content: string;
-  }[];
+  riskTier: string;
+  summaryOfFindings: string;
+  whatTheDataSays: string[];
+  keyPotentialDisruptors: string[];
+  researchReferences: string[];
 }
 
 const openai = new OpenAI({
@@ -22,87 +23,87 @@ async function generateExplorationInsight(
   const prompts = {
     'industry': `Analyze the industry trends and market dynamics affecting ${jobTitle} roles in the ${industry} sector.
 
-Your response should be structured with the following sections:
+Provide your analysis in JSON format with the following structure:
+{
+  "riskTier": "${riskTier}",
+  "summaryOfFindings": "A comprehensive summary of the industry analysis and its implications for the role",
+  "whatTheDataSays": [
+    "Key finding about industry direction and significant changes",
+    "Impact on job roles and responsibilities",
+    "Market conditions affecting employment",
+    "Geographic and regional variations in demand"
+  ],
+  "keyPotentialDisruptors": [
+    "Major industry shifts that could impact the role",
+    "Competitive pressures and challenges",
+    "Innovation opportunities and threats",
+    "Economic factors affecting stability"
+  ],
+  "researchReferences": [
+    "Relevant industry reports and data sources",
+    "Market analysis references",
+    "Economic indicators and trends",
+    "Regional market studies"
+  ]
+}
 
-1. "Current Industry Trajectory and Major Shifts"
-- Analyze current industry direction and significant changes
-- Impact on job roles and responsibilities
-- Key growth areas and declining segments
-
-2. "Economic Factors Impacting Job Stability"
-- Market conditions affecting employment
-- Budget trends and spending patterns
-- Economic indicators and their implications
-
-3. "Emerging Opportunities and Potential Threats"
-- New market segments and role expansions
-- Competitive pressures and challenges
-- Innovation opportunities
-
-4. "Regional Market Variations"
-- Geographic differences in demand
-- Location-specific trends
-- Market maturity by region
-
-Consider their risk score of ${riskScore} and ${riskTier} risk tier in your analysis.
-
-Format the response as a JSON object with an array of sections, each having a "title" and "content" field.`,
+Consider their risk score of ${riskScore} and current risk tier in your analysis.`,
 
     'technology': `Analyze the technological disruptions affecting ${jobTitle} roles in the ${industry} sector.
 
-Your response should be structured with the following sections:
+Provide your analysis in JSON format with the following structure:
+{
+  "riskTier": "${riskTier}",
+  "summaryOfFindings": "A comprehensive summary of technological impacts and future implications",
+  "whatTheDataSays": [
+    "Current state of technology adoption",
+    "Impact on workflows and processes",
+    "Required technical adaptations",
+    "Digital transformation progress"
+  ],
+  "keyPotentialDisruptors": [
+    "Emerging technologies affecting the role",
+    "Automation and AI developments",
+    "New tools and platforms",
+    "Integration challenges"
+  ],
+  "researchReferences": [
+    "Technology trend reports",
+    "Industry automation studies",
+    "Digital transformation research",
+    "Tech adoption forecasts"
+  ]
+}
 
-1. "Emerging Technologies Impact"
-- Key technological trends
-- Direct impact on current role
-- Future technology adoption timeline
-
-2. "Automation and AI Developments"
-- Current automation capabilities
-- AI integration in workflows
-- Future automation projections
-
-3. "Required Technical Adaptations"
-- Essential technical skills
-- Learning priorities
-- Implementation challenges
-
-4. "Digital Transformation Trends"
-- Industry-specific digital shifts
-- New tools and platforms
-- Integration challenges and opportunities
-
-Consider their risk score of ${riskScore} and ${riskTier} risk tier in your analysis.
-
-Format the response as a JSON object with an array of sections, each having a "title" and "content" field.`,
+Consider their risk score of ${riskScore} and current risk tier in your analysis.`,
 
     'role': `Analyze the key considerations for ${jobTitle} roles in the ${industry} sector.
 
-Your response should be structured with the following sections:
+Provide your analysis in JSON format with the following structure:
+{
+  "riskTier": "${riskTier}",
+  "summaryOfFindings": "A comprehensive summary of role evolution and future outlook",
+  "whatTheDataSays": [
+    "Current role requirements and responsibilities",
+    "Emerging skill needs and competencies",
+    "Career progression opportunities",
+    "Professional development trends"
+  ],
+  "keyPotentialDisruptors": [
+    "Changes in role expectations",
+    "New skill requirements",
+    "Career path shifts",
+    "Market demand changes"
+  ],
+  "researchReferences": [
+    "Job market analysis reports",
+    "Skills demand studies",
+    "Career trajectory research",
+    "Professional development guides"
+  ]
+}
 
-1. "Role Evolution and Future Outlook"
-- Changes in responsibilities
-- Emerging role variations
-- Future role projections
-
-2. "Critical Skills and Competencies"
-- Current skill requirements
-- Emerging skill needs
-- Core competency shifts
-
-3. "Career Path Trajectories"
-- Typical progression paths
-- Alternative career routes
-- Growth opportunities
-
-4. "Adaptation Strategies"
-- Key areas for development
-- Risk mitigation approaches
-- Professional positioning
-
-Consider their risk score of ${riskScore} and ${riskTier} risk tier in your analysis.
-
-Format the response as a JSON object with an array of sections, each having a "title" and "content" field.`
+Consider their risk score of ${riskScore} and current risk tier in your analysis.`
   };
 
   const categoryKey = category === 'Industry & Market Trends' ? 'industry' 
@@ -110,34 +111,56 @@ Format the response as a JSON object with an array of sections, each having a "t
     : 'role';
 
   try {
-    const completion = await openai.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert career analyst and industry specialist who provides detailed, 
-          data-driven insights about career trajectories and market dynamics. Your analysis should be:
-          - Specific and actionable
-          - Based on current market realities
-          - Focused on practical implications
-          - Forward-looking but grounded
-          - Tailored to the individual's context
-          
-          Format your response as a JSON object with an array of sections, each containing a title and detailed content.`
-        },
-        {
-          role: "user",
-          content: prompts[categoryKey]
-        }
-      ],
-      model: "gpt-3.5-turbo",
-      temperature: 0.7,
-      response_format: { type: "json_object" },
+    // Create a thread
+    const thread = await openai.beta.threads.create();
+
+    // Add a message to the thread
+    await openai.beta.threads.messages.create(thread.id, {
+      role: "user",
+      content: prompts[categoryKey]
     });
 
-    const response = JSON.parse(completion.choices[0].message.content!);
+    // Run the Assistant
+    const run = await openai.beta.threads.runs.create(thread.id, {
+      assistant_id: "asst_WUFm7dYA56F9ikZa28OSPt3M",
+      instructions: `You are an expert career analyst and industry specialist who provides detailed, 
+      data-driven insights about career trajectories and market dynamics. Your analysis should be:
+      - Specific and actionable
+      - Based on current market realities
+      - Focused on practical implications
+      - Forward-looking but grounded
+      - Tailored to the individual's context
+      
+      Return your response in the exact JSON format specified in the prompt.`
+    });
+
+    // Wait for the run to complete
+    let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+    while (runStatus.status !== "completed") {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+      
+      if (runStatus.status === "failed" || runStatus.status === "cancelled") {
+        throw new Error(`Run ended with status: ${runStatus.status}`);
+      }
+    }
+
+    // Get the messages
+    const messages = await openai.beta.threads.messages.list(thread.id);
+    const lastMessageContent = messages.data[0].content[0];
+    
+    if (lastMessageContent.type !== 'text') {
+      throw new Error('Expected text response from assistant');
+    }
+
+    const response = JSON.parse(lastMessageContent.text.value);
     
     return {
-      sections: response.sections || []
+      riskTier: response.riskTier,
+      summaryOfFindings: response.summaryOfFindings,
+      whatTheDataSays: response.whatTheDataSays,
+      keyPotentialDisruptors: response.keyPotentialDisruptors,
+      researchReferences: response.researchReferences
     };
   } catch (error) {
     console.error('Error generating exploration insight:', error);

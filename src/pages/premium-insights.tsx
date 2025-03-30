@@ -73,10 +73,11 @@ interface UserData {
 }
 
 interface ExplorationInsight {
-  sections: {
-    title: string;
-    content: string;
-  }[];
+  riskTier: string;
+  summaryOfFindings: string;
+  whatTheDataSays: string[];
+  keyPotentialDisruptors: string[];
+  researchReferences: string[];
 }
 
 interface InvestmentInsight {
@@ -313,7 +314,7 @@ const PremiumInsights = () => {
             WebkitTextFillColor: 'transparent',
             textShadow: '0 2px 10px rgba(78, 205, 196, 0.2)',
           }}>
-            Premium Insights
+            Download Your Results
           </Typography>
 
           {/* Section Cards */}
@@ -408,20 +409,189 @@ const PremiumInsights = () => {
                         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
                         transition: 'all 0.3s ease',
                       }}>
-                        {exploreInsight.sections.map((section, index) => (
-                          <Box key={index} sx={{ mb: index < exploreInsight.sections.length - 1 ? 3 : 0 }}>
-                            <Typography variant="h6" sx={{ 
-                              color: '#4285f4',
-                              mb: 1,
-                              fontWeight: 600 
-                            }}>
-                              {section.title}
-                            </Typography>
-                            <Typography sx={{ whiteSpace: 'pre-line' }}>
-                              {section.content}
-                            </Typography>
+                        {/* Risk Tier Badge */}
+                        <Box sx={{ 
+                          display: 'flex', 
+                          justifyContent: 'flex-end', 
+                          mb: 2 
+                        }}>
+                          <Typography
+                            component="span"
+                            sx={{
+                              px: 2,
+                              py: 0.5,
+                              borderRadius: 2,
+                              fontSize: '0.875rem',
+                              fontWeight: 600,
+                              backgroundColor: exploreInsight.riskTier === 'High' ? '#ff4444' 
+                                : exploreInsight.riskTier === 'Moderate' ? '#ffbb33'
+                                : '#00C851',
+                              color: '#ffffff'
+                            }}
+                          >
+                            {exploreInsight.riskTier} Risk
+                          </Typography>
+                        </Box>
+
+                        {/* Summary Section */}
+                        <Box sx={{ mb: 4 }}>
+                          <Typography variant="h6" sx={{ 
+                            color: '#4285f4',
+                            mb: 2,
+                            fontWeight: 600 
+                          }}>
+                            Summary of Findings
+                          </Typography>
+                          <Typography sx={{ 
+                            whiteSpace: 'pre-line',
+                            fontSize: '1.1rem',
+                            lineHeight: 1.6
+                          }}>
+                            {exploreInsight.summaryOfFindings}
+                          </Typography>
+                        </Box>
+
+                        {/* What The Data Says Section */}
+                        <Box sx={{ mb: 4 }}>
+                          <Typography variant="h6" sx={{ 
+                            color: '#4285f4',
+                            mb: 2,
+                            fontWeight: 600 
+                          }}>
+                            What The Data Says
+                          </Typography>
+                          <Box component="ul" sx={{ 
+                            listStyle: 'none',
+                            p: 0,
+                            m: 0
+                          }}>
+                            {exploreInsight.whatTheDataSays.map((point, index) => (
+                              <Box
+                                component="li"
+                                key={index}
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'flex-start',
+                                  mb: 2,
+                                  '&:last-child': { mb: 0 }
+                                }}
+                              >
+                                <Box
+                                  component="span"
+                                  sx={{
+                                    width: 24,
+                                    height: 24,
+                                    borderRadius: '50%',
+                                    backgroundColor: '#4285f4',
+                                    color: '#ffffff',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    mr: 2,
+                                    flexShrink: 0,
+                                    fontSize: '0.875rem'
+                                  }}
+                                >
+                                  {index + 1}
+                                </Box>
+                                <Typography sx={{ pt: 0.25 }}>
+                                  {point}
+                                </Typography>
+                              </Box>
+                            ))}
                           </Box>
-                        ))}
+                        </Box>
+
+                        {/* Key Potential Disruptors Section */}
+                        <Box sx={{ mb: 4 }}>
+                          <Typography variant="h6" sx={{ 
+                            color: '#4285f4',
+                            mb: 2,
+                            fontWeight: 600 
+                          }}>
+                            Key Potential Disruptors
+                          </Typography>
+                          <Box sx={{ 
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                            gap: 2
+                          }}>
+                            {exploreInsight.keyPotentialDisruptors.map((disruptor, index) => (
+                              <Paper
+                                key={index}
+                                sx={{
+                                  p: 2,
+                                  backgroundColor: 'rgba(66, 133, 244, 0.05)',
+                                  border: '1px solid rgba(66, 133, 244, 0.1)',
+                                  borderRadius: 2
+                                }}
+                              >
+                                <Typography>
+                                  {disruptor}
+                                </Typography>
+                              </Paper>
+                            ))}
+                          </Box>
+                        </Box>
+
+                        {/* Research References Section */}
+                        <Box>
+                          <Typography variant="h6" sx={{ 
+                            color: '#4285f4',
+                            mb: 2,
+                            fontWeight: 600 
+                          }}>
+                            Explore the Research that Helped Inform This Perspective
+                          </Typography>
+                          <Box component="ul" sx={{ 
+                            listStyle: 'none',
+                            p: 0,
+                            m: 0,
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                            gap: 2
+                          }}>
+                            {exploreInsight.researchReferences.map((reference, index) => (
+                              <Box
+                                component="li"
+                                key={index}
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  p: 1.5,
+                                  borderRadius: 1,
+                                  backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                                  border: '1px solid rgba(0, 0, 0, 0.05)'
+                                }}
+                              >
+                                <Typography
+                                  component="span"
+                                  sx={{
+                                    width: 20,
+                                    height: 20,
+                                    borderRadius: '50%',
+                                    backgroundColor: '#4285f4',
+                                    color: '#ffffff',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    mr: 2,
+                                    flexShrink: 0,
+                                    fontSize: '0.75rem'
+                                  }}
+                                >
+                                  {index + 1}
+                                </Typography>
+                                <Typography sx={{ 
+                                  fontSize: '0.875rem',
+                                  color: '#666'
+                                }}>
+                                  {reference}
+                                </Typography>
+                              </Box>
+                            ))}
+                          </Box>
+                        </Box>
                       </Paper>
                     </Fade>
                   )}
