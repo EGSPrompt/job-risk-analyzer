@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Container,
   Typography,
@@ -13,6 +13,8 @@ import {
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 type RiskLevel = 'Low' | 'Moderate' | 'High' | 'Very High';
 
@@ -175,6 +177,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<RiskAnalysis | null>(null);
   const router = useRouter();
+  const resultCardRef = useRef<HTMLDivElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -208,6 +211,99 @@ export default function Home() {
       setError('Failed to analyze risk. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const generatePDF = async () => {
+    if (!resultCardRef.current || !result) return;
+
+    try {
+      // Create a canvas from the result card
+      const canvas = await html2canvas(resultCardRef.current, {
+        background: '#ffffff',
+        logging: false,
+        useCORS: true,
+        width: resultCardRef.current.scrollWidth,
+        height: resultCardRef.current.scrollHeight
+      });
+
+      // Initialize PDF with A4 format
+      const pdf = new jsPDF({
+        format: 'a4',
+        unit: 'mm',
+        orientation: 'portrait'
+      });
+
+      // Get page dimensions in mm
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 20;
+
+      // Calculate image dimensions to fit within margins
+      const availableWidth = pageWidth - (margin * 2);
+      const aspectRatio = canvas.height / canvas.width;
+      const imageWidth = availableWidth;
+      const imageHeight = imageWidth * aspectRatio;
+
+      // Add title
+      pdf.setFontSize(24);
+      pdf.setTextColor(66, 133, 244); // #4285f4
+      pdf.text('Job Risk Analysis Report', pageWidth / 2, margin, { align: 'center' });
+
+      // Add date
+      pdf.setFontSize(12);
+      pdf.setTextColor(26, 26, 26); // #1a1a1a
+      const date = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      pdf.text(`Generated on ${date}`, pageWidth / 2, margin + 10, { align: 'center' });
+
+      // Add input parameters
+      pdf.setFontSize(14);
+      pdf.text('Analysis Parameters:', margin, margin + 25);
+      pdf.setFontSize(12);
+      const params = [
+        `Job Title: ${formData.jobTitle}`,
+        `Age Range: ${formData.ageRange}`,
+        `Industry: ${formData.industry}`,
+        `Organization Size: ${formData.companySize}`,
+        `Region: ${formData.region}`
+      ];
+      pdf.text(params, margin, margin + 35);
+
+      // Add the result card image
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      pdf.addImage(
+        imgData,
+        'PNG',
+        margin,
+        margin + 55,
+        imageWidth,
+        imageHeight
+      );
+
+      // Check if we need a new page for the footer
+      if ((margin + 55 + imageHeight + 20) > pageHeight) {
+        pdf.addPage();
+      }
+
+      // Add footer
+      pdf.setFontSize(10);
+      pdf.setTextColor(128, 128, 128);
+      pdf.text(
+        'This report was generated using AI-powered analysis of current job market trends and industry data.',
+        pageWidth / 2,
+        pageHeight - margin,
+        { align: 'center' }
+      );
+
+      // Save the PDF
+      const fileName = `job-risk-analysis-${formData.jobTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.pdf`;
+      pdf.save(fileName);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
     }
   };
 
@@ -402,7 +498,7 @@ export default function Home() {
             </form>
 
             {result && (
-              <ResultCard>
+              <ResultCard ref={resultCardRef} id="risk-assessment-result">
                 <Box sx={{ textAlign: 'center', mb: 4 }}>
                   <Typography 
                     variant="h4" 
@@ -574,6 +670,7 @@ export default function Home() {
                     variant="contained"
                     color="primary"
                     size="large"
+                    onClick={generatePDF}
                     sx={{
                       mt: 2,
                       backgroundColor: '#4285f4',
