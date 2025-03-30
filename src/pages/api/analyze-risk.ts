@@ -1,12 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import OpenAI from 'openai';
 
-type RiskTier = 'Low' | 'Moderate' | 'High' | 'Critical';
+type RiskLevel = 'Low' | 'Moderate' | 'High' | 'Very High';
 
 interface RiskAnalysis {
-  riskScore: number;
-  riskTier: RiskTier;
-  summary: string;
+  riskTier: RiskLevel;
+  summaryOfFindings: string;
+  whatTheDataSays: string[];
+  keyPotentialDisruptors: string[];
+  researchReferences: string[];
 }
 
 // Validate OpenAI API key
@@ -19,7 +21,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!, // Non-null assertion is safe here due to validation above
 });
 
-async function calculateRiskScore(
+async function analyzeRisk(
   jobTitle: string, 
   ageRange: string,
   industry: string, 
@@ -27,7 +29,7 @@ async function calculateRiskScore(
   region: string
 ): Promise<RiskAnalysis> {
   try {
-    console.log('Starting risk calculation for:', { jobTitle, ageRange, industry, companySize, region });
+    console.log('Starting risk analysis for:', { jobTitle, ageRange, industry, companySize, region });
     
     // Prepare the prompt for GPT
     const prompt = `Analyze the automation and AI displacement risk for the following job:
@@ -46,19 +48,36 @@ async function calculateRiskScore(
     - Age-related factors and adaptability
     - Career stage implications
 
-    Provide:
-    1. A risk score from 0-100 (be specific and vary this based on all factors)
-    2. A risk tier (Low: 0-25, Moderate: 26-50, High: 51-75, or Critical: 76-100)
-    3. A brief analysis summary that includes age-specific considerations
-    
-    Format the response as JSON with fields: riskScore, riskTier, summary`;
+    Return your analysis in JSON format with the following structure:
+    {
+      "riskTier": "Low/Moderate/High/Very High",
+      "summaryOfFindings": "A comprehensive summary of the risk analysis",
+      "whatTheDataSays": [
+        "Key finding about industry direction",
+        "Impact on job roles",
+        "Market conditions",
+        "Geographic variations"
+      ],
+      "keyPotentialDisruptors": [
+        "Major industry shifts",
+        "Competitive pressures",
+        "Innovation threats",
+        "Economic factors"
+      ],
+      "researchReferences": [
+        "Industry reports",
+        "Market analysis",
+        "Economic indicators",
+        "Regional studies"
+      ]
+    }`;
 
     console.log('Sending prompt to OpenAI');
     const completion = await openai.chat.completions.create({
       messages: [
         {
           role: "system",
-          content: "You are an AI specialized in analyzing job market risks and future workforce trends. Provide detailed, well-reasoned analysis based on current market data and technological trends. Consider both technical skills and soft skills when analyzing different age groups. Your risk scores should be specific and varied based on all input factors. Respond only in valid JSON format using double quotes. Do not include code blocks or markdown formatting."
+          content: "You are an AI specialized in analyzing job market risks and future workforce trends. Provide detailed, well-reasoned analysis based on current market data and technological trends. Consider both technical skills and soft skills when analyzing different age groups. Your analysis should be specific and varied based on all input factors. Return only valid JSON with the exact structure requested. Each array should contain 3-5 detailed points."
         },
         {
           role: "user",
@@ -67,7 +86,7 @@ async function calculateRiskScore(
       ],
       model: "gpt-3.5-turbo",
       response_format: { type: "json_object" },
-      temperature: 0.7, // Add some variability to the responses
+      temperature: 0.7,
     });
 
     const gptContent = completion.choices[0].message.content;
@@ -77,20 +96,15 @@ async function calculateRiskScore(
     const response = JSON.parse(gptContent!);
     console.log("Parsed response:", response);
 
-    // Validate and normalize the response
-    const riskScore = Math.max(0, Math.min(100, response.riskScore));
-    const riskTier = response.riskTier as RiskTier;
-    
-    // Log the final calculated values
-    console.log("Final calculated values:", { riskScore, riskTier });
-    
     return {
-      riskScore,
-      riskTier,
-      summary: response.summary,
+      riskTier: response.riskTier as RiskLevel,
+      summaryOfFindings: response.summaryOfFindings,
+      whatTheDataSays: response.whatTheDataSays,
+      keyPotentialDisruptors: response.keyPotentialDisruptors,
+      researchReferences: response.researchReferences
     };
   } catch (error) {
-    console.error('Error in calculateRiskScore:', error);
+    console.error('Error in analyzeRisk:', error);
     if (error instanceof Error) {
       console.error('Error details:', {
         name: error.name,
@@ -98,12 +112,25 @@ async function calculateRiskScore(
         stack: error.stack,
       });
     }
-    // Provide a more dynamic fallback based on the input
-    const baseRisk = Math.floor(Math.random() * 20) + 40; // Random score between 40-60
+    // Provide a fallback response
     return {
-      riskScore: baseRisk,
       riskTier: 'Moderate',
-      summary: `Based on your input as a ${jobTitle} (age ${ageRange}) in the ${industry} industry, working for a ${companySize} company in ${region}, we've assessed your role's displacement risk as moderate. However, we encountered an issue getting detailed analysis. Please try again later.`,
+      summaryOfFindings: `Based on your input as a ${jobTitle} (age ${ageRange}) in the ${industry} industry, working for a ${companySize} company in ${region}, we've assessed your role's displacement risk as moderate. However, we encountered an issue getting detailed analysis. Please try again later.`,
+      whatTheDataSays: [
+        "Current market conditions suggest moderate disruption risk",
+        "Your industry is experiencing ongoing technological changes",
+        "Company size may influence adaptation requirements"
+      ],
+      keyPotentialDisruptors: [
+        "Emerging automation technologies",
+        "Changing industry dynamics",
+        "Economic factors"
+      ],
+      researchReferences: [
+        "Industry trend reports",
+        "Market analysis studies",
+        "Economic forecasts"
+      ]
     };
   }
 }
@@ -134,7 +161,7 @@ export default async function handler(
     console.log('Processing request for:', { jobTitle, ageRange, industry, companySize, region });
 
     // Process the request
-    const analysis = await calculateRiskScore(
+    const analysis = await analyzeRisk(
       jobTitle,
       ageRange,
       industry,
