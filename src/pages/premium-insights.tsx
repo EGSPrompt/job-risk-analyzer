@@ -16,6 +16,8 @@ import { ThemeProvider } from '@mui/material/styles';
 import { theme } from '../styles/theme';
 import { styled } from '@mui/material/styles';
 
+type RiskLevel = 'Low' | 'Moderate' | 'High' | 'Critical';
+
 // Styled components
 const CategoryTitle = styled(Typography)(({ theme }) => ({
   fontSize: '1.75rem',
@@ -35,7 +37,7 @@ interface UserData {
   companySize: string;
   region: string;
   riskScore: number;
-  riskTier: string;
+  riskTier: RiskLevel;
   summary: string;
 }
 
@@ -77,6 +79,38 @@ const PremiumInsights = () => {
   const [careerInput, setCareerInput] = useState('');
   const [showBusinessInput, setShowBusinessInput] = useState(false);
   const [showCareerInput, setShowCareerInput] = useState(false);
+
+  useEffect(() => {
+    if (router.isReady) {
+      const {
+        jobTitle,
+        ageRange,
+        industry,
+        companySize,
+        region,
+        riskScore,
+        riskTier,
+        summary
+      } = router.query;
+
+      if (jobTitle && ageRange && industry && companySize && region && riskScore && riskTier && summary) {
+        setUserData({
+          jobTitle: String(jobTitle),
+          ageRange: String(ageRange),
+          industry: String(industry),
+          companySize: String(companySize),
+          region: String(region),
+          riskScore: Number(riskScore),
+          riskTier: String(riskTier) as RiskLevel,
+          summary: String(summary)
+        });
+      } else {
+        // If we don't have all the required data, redirect back to the form
+        router.push('/');
+      }
+      setLoading(false);
+    }
+  }, [router.isReady, router.query]);
 
   const fetchPathwayInsight = async (pathwayType: 'business' | 'career', input: string, userData: UserData): Promise<PathwayInsight> => {
     try {

@@ -214,20 +214,6 @@ export default function Home() {
 
       const data = await response.json();
       setResult(data);
-
-      // Combine form data with analysis results
-      const userData = {
-        ...formData,
-        riskScore: data.riskScore,
-        riskTier: data.riskTier,
-        summary: data.summary
-      };
-
-      // Navigate to premium insights with complete data
-      router.push({
-        pathname: '/premium-insights',
-        query: { data: encodeURIComponent(JSON.stringify(userData)) },
-      });
     } catch (error) {
       console.error('Error analyzing risk:', error);
       setError('Failed to analyze risk. Please try again.');
@@ -461,12 +447,16 @@ export default function Home() {
                   <Link
                     href={{
                       pathname: '/premium-insights',
-                      query: { data: encodeURIComponent(JSON.stringify({
-                        ...formData,
+                      query: {
+                        jobTitle: formData.jobTitle,
+                        ageRange: formData.ageRange,
+                        industry: formData.industry,
+                        companySize: formData.companySize,
+                        region: formData.region,
                         riskScore: result.riskScore,
                         riskTier: result.riskTier,
                         summary: result.summary
-                      })) },
+                      }
                     }}
                     passHref
                   >
