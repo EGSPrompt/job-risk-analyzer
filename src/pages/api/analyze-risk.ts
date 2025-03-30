@@ -97,6 +97,9 @@ export default async function handler(
   res: NextApiResponse<RiskAnalysis | { error: string }>
 ) {
   try {
+    // Debug logging
+    console.log('API Key exists:', !!process.env.OPENAI_API_KEY);
+    
     // Validate request method
     if (req.method !== 'POST') {
       return res.status(405).json({ error: 'Method Not Allowed' });
@@ -111,6 +114,9 @@ export default async function handler(
       });
     }
 
+    // Log request data
+    console.log('Processing request for:', { jobTitle, ageRange, industry, companySize, region });
+
     // Process the request
     const analysis = await calculateRiskScore(
       jobTitle,
@@ -120,10 +126,18 @@ export default async function handler(
       region
     );
 
+    // Log successful response
+    console.log('Analysis completed:', analysis);
+
     return res.status(200).json(analysis);
   } catch (error) {
-    // Log the error for debugging
+    // Log the full error for debugging
     console.error('API Error:', error);
+    console.error('Error details:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : 'Unknown error occurred',
+      stack: error instanceof Error ? error.stack : undefined
+    });
     
     // Return a generic error response
     return res.status(500).json({ error: 'Internal Server Error' });
