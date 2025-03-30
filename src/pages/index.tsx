@@ -25,7 +25,7 @@ const FormContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(6),
   maxWidth: 600,
   margin: '0 auto',
-  marginTop: theme.spacing(4),
+  marginTop: theme.spacing(2),
   borderRadius: theme.spacing(3),
   background: 'rgba(255, 255, 255, 0.02)',
   backdropFilter: 'blur(10px)',
@@ -260,8 +260,6 @@ export default function Home() {
         },
       }}>
         <Container maxWidth="lg">
-          <HeroSection>
-          </HeroSection>
           <FormContainer id="risk-assessment-form">
             <form onSubmit={handleSubmit}>
               <StyledTextField
