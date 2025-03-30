@@ -72,6 +72,20 @@ interface UserData {
   summary: string;
 }
 
+interface ExplorationInsight {
+  sections: {
+    title: string;
+    content: string;
+  }[];
+}
+
+interface InvestmentInsight {
+  sections: {
+    title: string;
+    content: string;
+  }[];
+}
+
 interface PathwayInsight {
   analysis: string;
   keyFactors: string;
@@ -88,11 +102,11 @@ const PremiumInsights = () => {
   const [selectedSection, setSelectedSection] = useState('explore');
   const [activeExplore, setActiveExplore] = useState<string | null>(null);
   const [exploreLoading, setExploreLoading] = useState(false);
-  const [exploreInsight, setExploreInsight] = useState<string | null>(null);
+  const [exploreInsight, setExploreInsight] = useState<ExplorationInsight | null>(null);
 
   const [activeInvest, setActiveInvest] = useState('Skills Needed');
   const [investLoading, setInvestLoading] = useState(false);
-  const [investInsight, setInvestInsight] = useState<string | null>(null);
+  const [investInsight, setInvestInsight] = useState<InvestmentInsight | null>(null);
 
   const [pathwayInsight, setPathwayInsight] = useState<PathwayInsight | null>(null);
   const [pathwayLoading, setPathwayLoading] = useState(false);
@@ -198,10 +212,10 @@ const PremiumInsights = () => {
       }
 
       const data = await response.json();
-      setExploreInsight(data.content);
+      setExploreInsight(data);
     } catch (error) {
       console.error('Error fetching exploration insight:', error);
-      setExploreInsight('Failed to load insight. Please try again.');
+      setExploreInsight(null);
     } finally {
       setExploreLoading(false);
     }
@@ -227,6 +241,7 @@ const PremiumInsights = () => {
           industry: userData.industry,
           riskScore: userData.riskScore,
           riskTier: userData.riskTier,
+          skills: [], // Add skills array if available
         }),
       });
 
@@ -235,10 +250,10 @@ const PremiumInsights = () => {
       }
       
       const data = await response.json();
-      setInvestInsight(data.content);
+      setInvestInsight(data);
     } catch (error) {
       console.error('Error fetching investment insight:', error);
-      setInvestInsight('Failed to load insight. Please try again.');
+      setInvestInsight(null);
     } finally {
       setInvestLoading(false);
     }
@@ -393,9 +408,20 @@ const PremiumInsights = () => {
                         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
                         transition: 'all 0.3s ease',
                       }}>
-                        <Typography sx={{ whiteSpace: 'pre-line' }}>
-                          {exploreInsight}
-                        </Typography>
+                        {exploreInsight.sections.map((section, index) => (
+                          <Box key={index} sx={{ mb: index < exploreInsight.sections.length - 1 ? 3 : 0 }}>
+                            <Typography variant="h6" sx={{ 
+                              color: '#4285f4',
+                              mb: 1,
+                              fontWeight: 600 
+                            }}>
+                              {section.title}
+                            </Typography>
+                            <Typography sx={{ whiteSpace: 'pre-line' }}>
+                              {section.content}
+                            </Typography>
+                          </Box>
+                        ))}
                       </Paper>
                     </Fade>
                   )}
@@ -453,9 +479,20 @@ const PremiumInsights = () => {
                         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
                         transition: 'all 0.3s ease',
                       }}>
-                        <Typography sx={{ whiteSpace: 'pre-line' }}>
-                          {investInsight}
-                        </Typography>
+                        {investInsight.sections.map((section, index) => (
+                          <Box key={index} sx={{ mb: index < investInsight.sections.length - 1 ? 3 : 0 }}>
+                            <Typography variant="h6" sx={{ 
+                              color: '#4285f4',
+                              mb: 1,
+                              fontWeight: 600 
+                            }}>
+                              {section.title}
+                            </Typography>
+                            <Typography sx={{ whiteSpace: 'pre-line' }}>
+                              {section.content}
+                            </Typography>
+                          </Box>
+                        ))}
                       </Paper>
                     </Fade>
                   )}
