@@ -104,10 +104,6 @@ function App() {
       <CssBaseline />
       <Container maxWidth="md">
         <Box sx={{ py: 4 }}>
-          <Typography variant="h3" component="h1" gutterBottom align="center" sx={{ mb: 4 }}>
-            Job Displacement Risk Analyzer
-          </Typography>
-
           <Paper elevation={3} sx={{ p: 4, mb: 4 }}>
             <form onSubmit={handleSubmit}>
               <TextField
