@@ -242,15 +242,82 @@ interface UserData {
   summary: string;
 }
 
-// API calls using user data
-const fetchInsight = async (category: string, userData: UserData) => {
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  return `Detailed ${category} analysis for your role as a ${userData.jobTitle} in ${userData.industry}. Based on your risk score of ${userData.riskScore} (${userData.riskTier} Risk), we've identified key areas where AI and automation may impact your role...`;
+interface ExplorationInsights {
+  industryTrends: string;
+  techDisruptors: string;
+  roleConsiderations: string;
+}
+
+interface InvestmentInsights {
+  skillsNeeded: string;
+  reskillingOptions: string;
+  adjacentRoles: string;
+}
+
+const fetchInsight = async (category: string, userData: UserData): Promise<string> => {
+  try {
+    const response = await fetch('/api/explore-score', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch insights');
+    }
+
+    const insights: ExplorationInsights = await response.json();
+    
+    // Return the appropriate insight based on the category
+    switch (category) {
+      case 'Industry Trends':
+        return insights.industryTrends;
+      case 'Technology Impact':
+        return insights.techDisruptors;
+      case 'Role Evolution':
+        return insights.roleConsiderations;
+      default:
+        return 'Category not found';
+    }
+  } catch (error) {
+    console.error('Error fetching insight:', error);
+    throw error;
+  }
 };
 
-const fetchSkillsInsight = async (category: string, userData: UserData) => {
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  return `${category} analysis for your profile as a ${userData.jobTitle}: Given the ${userData.riskTier.toLowerCase()} risk level in your industry, we recommend focusing on...`;
+const fetchSkillsInsight = async (category: string, userData: UserData): Promise<string> => {
+  try {
+    const response = await fetch('/api/invest-insights', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch investment insights');
+    }
+
+    const insights: InvestmentInsights = await response.json();
+    
+    // Return the appropriate insight based on the category
+    switch (category) {
+      case 'Skills Needed':
+        return insights.skillsNeeded;
+      case 'Reskilling Options':
+        return insights.reskillingOptions;
+      case 'Adjacent Roles':
+        return insights.adjacentRoles;
+      default:
+        return 'Category not found';
+    }
+  } catch (error) {
+    console.error('Error fetching investment insight:', error);
+    throw error;
+  }
 };
 
 const fetchPathwayInsight = async (category: string, input: string, userData: UserData) => {
