@@ -11,7 +11,7 @@ import {
   FormHelperText,
 } from '@mui/material';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
-import type { NextPage } from 'next';
+import Link from 'next/link';
 
 type RiskLevel = 'Low' | 'Moderate' | 'High' | 'Critical';
 
@@ -25,6 +25,7 @@ const FormContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(6),
   maxWidth: 600,
   margin: '0 auto',
+  marginTop: theme.spacing(4),
   borderRadius: theme.spacing(3),
   background: 'rgba(255, 255, 255, 0.02)',
   backdropFilter: 'blur(10px)',
@@ -109,6 +110,23 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   },
 }));
 
+const StyledWEM = styled(Typography)(({ theme }) => ({
+  fontSize: '3.5rem',
+  fontWeight: 700,
+  textAlign: 'center',
+  background: 'linear-gradient(135deg, #40E0D0 0%, #4285f4 100%)',
+  WebkitBackgroundClip: 'text',
+  backgroundClip: 'text',
+  color: 'transparent',
+  textShadow: '0 0 20px rgba(64, 224, 208, 0.1)',
+  marginBottom: theme.spacing(2),
+}));
+
+const HeroSection = styled(Box)(({ theme }) => ({
+  textAlign: 'center',
+  marginBottom: theme.spacing(8),
+}));
+
 const industries = [
   { label: "Financial Services", value: "Finance and Insurance" },
   { label: "Tech & Digital Services", value: "Information" },
@@ -141,7 +159,22 @@ const theme = createTheme({
   },
 });
 
-const Home: NextPage = () => {
+const PremiumButton = styled(Button)(({ theme }) => ({
+  background: 'linear-gradient(135deg, #40E0D0 0%, #4285f4 100%)',
+  color: 'white',
+  padding: '12px 24px',
+  borderRadius: theme.spacing(2),
+  textTransform: 'none',
+  fontSize: '1.1rem',
+  fontWeight: 500,
+  boxShadow: '0 4px 20px rgba(64, 224, 208, 0.3)',
+  '&:hover': {
+    background: 'linear-gradient(135deg, #4285f4 0%, #40E0D0 100%)',
+    transform: 'translateY(-2px)',
+  },
+}));
+
+export default function Home() {
   const [formData, setFormData] = useState({
     jobTitle: '',
     ageRange: '',
@@ -227,6 +260,17 @@ const Home: NextPage = () => {
         },
       }}>
         <Container maxWidth="lg">
+          <HeroSection>
+            <StyledWEM>
+              Workforce Evolution Model
+            </StyledWEM>
+            <Typography variant="h5" sx={{ color: 'rgba(255, 255, 255, 0.9)', mb: 3 }}>
+              Assess your career's future in the age of AI
+            </Typography>
+            <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.7)', maxWidth: 600, mx: 'auto', mb: 6 }}>
+              Our advanced model analyzes your role against emerging technologies and industry trends to provide personalized insights about potential disruption risks.
+            </Typography>
+          </HeroSection>
           <FormContainer id="risk-assessment-form">
             <form onSubmit={handleSubmit}>
               <StyledTextField
@@ -411,31 +455,27 @@ const Home: NextPage = () => {
                 </Typography>
                 
                 <PremiumSection>
-                  <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: '#6633ee' }}>
-                    Unlock Full Insights
+                  <Typography variant="h5" sx={{ mb: 2, color: 'white', textAlign: 'center' }}>
+                    Want deeper insights into your career risk?
                   </Typography>
-                  <Typography variant="body2" sx={{ mb: 3, color: 'rgba(0, 0, 0, 0.87)' }}>
-                    Get detailed analysis, trends, and personalized recommendations to future-proof your career.
-                  </Typography>
-                  <Button 
-                    variant="contained" 
-                    fullWidth
-                    onClick={() => window.location.href = '/risk-analyzer/premium-insights'}
-                    sx={{
-                      py: 1.5,
-                      borderRadius: 2,
-                      textTransform: 'none',
-                      fontSize: '1.1rem',
-                      fontWeight: 500,
-                      background: 'linear-gradient(135deg, #6633ee 0%, #4285f4 100%)',
-                      '&:hover': {
-                        background: 'linear-gradient(135deg, #4285f4 0%, #6633ee 100%)',
-                      },
-                      boxShadow: '0 4px 20px rgba(102, 51, 238, 0.2)',
-                    }}
-                  >
-                    Upgrade to Premium
-                  </Button>
+                  <Box sx={{ textAlign: 'center' }}>
+                    <Link 
+                      href={{
+                        pathname: '/premium-insights',
+                        query: {
+                          ...formData,
+                          riskScore: result?.riskScore,
+                          riskTier: result?.riskTier,
+                          summary: result?.summary
+                        }
+                      }} 
+                      passHref
+                    >
+                      <PremiumButton>
+                        Get Premium Insights
+                      </PremiumButton>
+                    </Link>
+                  </Box>
                 </PremiumSection>
               </ResultCard>
             )}
@@ -444,6 +484,4 @@ const Home: NextPage = () => {
       </Box>
     </ThemeProvider>
   );
-};
-
-export default Home; 
+} 

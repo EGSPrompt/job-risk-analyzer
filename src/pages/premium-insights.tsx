@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import {
   Container,
   Typography,
@@ -230,32 +231,78 @@ const RiskLabel = styled(Typography)(() => ({
   color: 'transparent',
 }));
 
-// Mock user inputs (in real app, this would come from props or context)
-const userInputs = {
-  jobTitle: "Software Developer",
-  ageRange: "30-39",
-  industry: "Technology",
-  companySize: "Medium (1,001–10,000 employees)",
-  region: "United States"
+interface UserData {
+  jobTitle: string;
+  ageRange: string;
+  industry: string;
+  companySize: string;
+  region: string;
+  riskScore: number;
+  riskTier: string;
+  summary: string;
+}
+
+// API calls using user data
+const fetchInsight = async (category: string, userData: UserData) => {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  return `Detailed ${category} analysis for your role as a ${userData.jobTitle} in ${userData.industry}. Based on your risk score of ${userData.riskScore} (${userData.riskTier} Risk), we've identified key areas where AI and automation may impact your role...`;
 };
 
-// Mock API calls
-const fetchInsight = async (category: string) => {
+const fetchSkillsInsight = async (category: string, userData: UserData) => {
   await new Promise(resolve => setTimeout(resolve, 1000));
-  return `Detailed analysis for ${category} based on your role as a ${userInputs.jobTitle} in ${userInputs.industry}...`;
+  return `${category} analysis for your profile as a ${userData.jobTitle}: Given the ${userData.riskTier.toLowerCase()} risk level in your industry, we recommend focusing on...`;
 };
 
-const fetchSkillsInsight = async (category: string) => {
+const fetchPathwayInsight = async (category: string, input: string, userData: UserData) => {
   await new Promise(resolve => setTimeout(resolve, 1000));
-  return `${category} analysis for your profile...`;
-};
-
-const fetchPathwayInsight = async (category: string, input: string) => {
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  return `Analysis for ${category}: ${input}`;
+  return `Career pathway analysis for ${category}: ${input}. Considering your current role as ${userData.jobTitle} and the ${userData.riskTier.toLowerCase()} risk level...`;
 };
 
 const PremiumInsights = () => {
+  const router = useRouter();
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Wait for router to be ready
+    if (!router.isReady) return;
+
+    // If we don't have the required data, redirect back to the main page
+    if (!router.query.riskScore || !router.query.jobTitle) {
+      router.push('/');
+      return;
+    }
+
+    // Set the user data from URL parameters
+    setUserData({
+      jobTitle: router.query.jobTitle as string,
+      ageRange: router.query.ageRange as string,
+      industry: router.query.industry as string,
+      companySize: router.query.companySize as string,
+      region: router.query.region as string,
+      riskScore: Number(router.query.riskScore),
+      riskTier: router.query.riskTier as string,
+      summary: router.query.summary as string,
+    });
+    setLoading(false);
+  }, [router.isReady, router.query]);
+
+  if (loading) {
+    return (
+      <ThemeProvider theme={theme}>
+        <Box sx={{ 
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#000'
+        }}>
+          <CircularProgress />
+        </Box>
+      </ThemeProvider>
+    );
+  }
+
   const [selectedSection, setSelectedSection] = useState('');
   const [activeExplore, setActiveExplore] = useState<string | null>(null);
   const [exploreLoading, setExploreLoading] = useState(false);
@@ -272,28 +319,49 @@ const PremiumInsights = () => {
   const [pathwayLoading, setPathwayLoading] = useState(false);
   const [pathwayInsight, setPathwayInsight] = useState<string | null>(null);
 
-  const handleExploreClick = async (category: string) => {
-    setActiveExplore(category);
-    setExploreLoading(true);
-    const insight = await fetchInsight(category);
-    setExploreInsight(insight);
-    setExploreLoading(false);
+  const handleInsightRequest = async (category: string) => {
+    if (!userData) return;
+    setLoading(true);
+    try {
+      const insight = await fetchInsight(category, userData);
+      setExploreInsight(insight);
+    } catch (error) {
+      console.error('Error fetching insight:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleInvestClick = async (category: string) => {
-    setActiveInvest(category);
-    setInvestLoading(true);
-    const insight = await fetchSkillsInsight(category);
-    setInvestInsight(insight);
-    setInvestLoading(false);
+  const handleSkillsRequest = async (category: string) => {
+    if (!userData) return;
+    setLoading(true);
+    try {
+      const insight = await fetchSkillsInsight(category, userData);
+      setInvestInsight(insight);
+    } catch (error) {
+      console.error('Error fetching skills insight:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePathwayRequest = async (category: string, input: string) => {
+    if (!userData) return;
+    setLoading(true);
+    try {
+      const insight = await fetchPathwayInsight(category, input, userData);
+      setPathwayInsight(insight);
+    } catch (error) {
+      console.error('Error fetching pathway insight:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePathwaySubmit = async (type: 'business' | 'career') => {
     setPathwayLoading(true);
     const input = type === 'business' ? businessInput : careerInput;
-    const insight = await fetchPathwayInsight(type, input);
-    setPathwayInsight(insight);
-    setPathwayLoading(false);
+    await handlePathwayRequest(type, input);
   };
 
   return (
@@ -355,16 +423,16 @@ const PremiumInsights = () => {
                     justifyContent: 'center' 
                   }}>
                     <ScoreCircle>
-                      <ScoreText>55</ScoreText>
+                      <ScoreText>{userData?.riskScore}</ScoreText>
                     </ScoreCircle>
                     <RiskLabel>
-                      Moderate Risk
+                      {userData?.riskTier} Risk
                     </RiskLabel>
                   </Grid>
                   <Grid item xs={12} md={8}>
                     <ExplanationCard>
                       <ExplanationText>
-                        The FP&A Manager role in Public Administration shows moderate automation risk. While core financial analysis tasks are increasingly automated, strategic decision-making and stakeholder management remain highly valuable human skills. Your experience in complex financial modeling and cross-functional collaboration positions you well for continued success.
+                        {userData?.summary}
                       </ExplanationText>
                     </ExplanationCard>
                   </Grid>
@@ -446,7 +514,7 @@ const PremiumInsights = () => {
                     {['Industry & Market Trends', 'Technology Disruptors', 'Key Role Considerations'].map((category) => (
                       <Button
                         key={category}
-                        onClick={() => handleExploreClick(category)}
+                        onClick={() => handleInsightRequest(category)}
                         variant={activeExplore === category ? 'contained' : 'outlined'}
                         disabled={exploreLoading}
                         sx={{
@@ -484,7 +552,7 @@ const PremiumInsights = () => {
                     {['Skills Needed', 'Reskilling Options', 'Adjacent Roles'].map((category) => (
                       <Button
                         key={category}
-                        onClick={() => handleInvestClick(category)}
+                        onClick={() => handleSkillsRequest(category)}
                         variant={activeInvest === category ? 'contained' : 'outlined'}
                         sx={{
                           background: activeInvest === category
