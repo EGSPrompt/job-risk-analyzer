@@ -472,7 +472,7 @@ export default function Home() {
                         },
                       }}
                     >
-                      Get Premium Insights
+                      Download Your Results
                     </Button>
                   </Link>
                 </Box>

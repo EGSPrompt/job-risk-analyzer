@@ -108,6 +108,7 @@ Consider their risk score of ${riskScore} and current risk tier in your analysis
 
   const categoryKey = category === 'Industry & Market Trends' ? 'industry' 
     : category === 'Technology Disruptors' ? 'technology'
+    : category === 'Key Role Considerations' ? 'role'
     : 'role';
 
   try {
