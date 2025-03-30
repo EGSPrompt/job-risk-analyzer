@@ -24,7 +24,6 @@ const FormContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(6),
   maxWidth: 600,
   margin: '0 auto',
-  marginTop: theme.spacing(4),
   borderRadius: theme.spacing(3),
   background: 'rgba(255, 255, 255, 0.02)',
   backdropFilter: 'blur(10px)',
@@ -192,9 +191,39 @@ export default function Home() {
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ 
-        background: 'transparent',
+        minHeight: '100vh',
+        background: '#000',
         color: 'white',
+        pt: 4,
         position: 'relative',
+        overflow: 'hidden',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `url(images/digital-arrows-background.jpg)`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          opacity: 0.8,
+          filter: 'brightness(1.2) contrast(1.1)',
+        },
+        '&::after': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'linear-gradient(135deg, rgba(0,0,20,0.65) 0%, rgba(0,10,60,0.75) 100%)',
+        },
+        '& > *': {
+          position: 'relative',
+          zIndex: 2,
+        },
       }}>
         <Container maxWidth="lg">
           <FormContainer id="risk-assessment-form">
