@@ -46,21 +46,6 @@ const ResultCard = styled(Paper)(({ theme }) => ({
   boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
 }));
 
-const RiskScore = styled(Box)(({ theme }) => ({
-  width: 120,
-  height: 120,
-  borderRadius: '50%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  margin: '0 auto',
-  background: 'linear-gradient(135deg, #4285f4 0%, #34a853 100%)',
-  color: 'white',
-  fontSize: '2.5rem',
-  fontWeight: 'bold',
-  boxShadow: '0 4px 20px rgba(66, 133, 244, 0.3)',
-}));
-
 const PremiumSection = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
   marginTop: theme.spacing(4),
@@ -418,15 +403,9 @@ export default function Home() {
             {result && (
               <ResultCard>
                 <Box sx={{ textAlign: 'center', mb: 4 }}>
-                  <RiskScore>
-                    {result.riskTier === 'Very High' ? '90+' :
-                     result.riskTier === 'High' ? '65-89' :
-                     result.riskTier === 'Moderate' ? '35-64' : '0-34'}
-                  </RiskScore>
                   <Typography 
                     variant="h4" 
                     sx={{ 
-                      mt: 2,
                       color: result.riskTier === 'Low' ? '#40E0D0' : 
                              result.riskTier === 'Moderate' ? '#4285f4' :
                              result.riskTier === 'High' ? '#f44336' : '#d32f2f',
@@ -437,51 +416,141 @@ export default function Home() {
                     {result.riskTier} Risk
                   </Typography>
                 </Box>
-                <Typography 
-                  variant="body1" 
-                  sx={{ 
-                    textAlign: 'center',
-                    color: '#1a1a1a',
-                    lineHeight: 1.6,
-                  }}
-                >
-                  {result.summaryOfFindings}
-                </Typography>
-                
-                <Box sx={{ mt: 4, textAlign: 'center' }}>
-                  <Link
-                    href={{
-                      pathname: '/premium-insights',
-                      query: {
-                        jobTitle: formData.jobTitle,
-                        ageRange: formData.ageRange,
-                        industry: formData.industry,
-                        companySize: formData.companySize,
-                        region: formData.region,
-                        riskTier: result.riskTier,
-                        summaryOfFindings: result.summaryOfFindings,
-                        whatTheDataSays: JSON.stringify(result.whatTheDataSays),
-                        keyPotentialDisruptors: JSON.stringify(result.keyPotentialDisruptors),
-                        researchReferences: JSON.stringify(result.researchReferences)
-                      }
+
+                {/* Summary of Findings */}
+                <Box sx={{ mb: 4 }}>
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      color: '#1a1a1a',
+                      fontWeight: 600,
+                      mb: 2 
                     }}
-                    passHref
                   >
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      size="large"
-                      sx={{
-                        mt: 2,
-                        backgroundColor: '#4285f4',
-                        '&:hover': {
-                          backgroundColor: '#2b76f5',
-                        },
-                      }}
-                    >
-                      Download Your Results
-                    </Button>
-                  </Link>
+                    Summary of Findings
+                  </Typography>
+                  <Typography 
+                    sx={{ 
+                      color: '#1a1a1a',
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {result.summaryOfFindings}
+                  </Typography>
+                </Box>
+
+                {/* What the Data Says */}
+                <Box sx={{ mb: 4 }}>
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      color: '#1a1a1a',
+                      fontWeight: 600,
+                      mb: 2 
+                    }}
+                  >
+                    What the Data Says
+                  </Typography>
+                  <Box component="ul" sx={{ 
+                    pl: 2,
+                    m: 0,
+                    '& > li': {
+                      mb: 1,
+                      '&:last-child': {
+                        mb: 0
+                      }
+                    }
+                  }}>
+                    {result.whatTheDataSays.map((point, index) => (
+                      <li key={index}>
+                        <Typography sx={{ color: '#1a1a1a' }}>
+                          {point}
+                        </Typography>
+                      </li>
+                    ))}
+                  </Box>
+                </Box>
+
+                {/* Key Potential Disruptors */}
+                <Box sx={{ mb: 4 }}>
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      color: '#1a1a1a',
+                      fontWeight: 600,
+                      mb: 2 
+                    }}
+                  >
+                    Key Potential Disruptors
+                  </Typography>
+                  <Box component="ul" sx={{ 
+                    pl: 2,
+                    m: 0,
+                    '& > li': {
+                      mb: 1,
+                      '&:last-child': {
+                        mb: 0
+                      }
+                    }
+                  }}>
+                    {result.keyPotentialDisruptors.map((disruptor, index) => (
+                      <li key={index}>
+                        <Typography sx={{ color: '#1a1a1a' }}>
+                          {disruptor}
+                        </Typography>
+                      </li>
+                    ))}
+                  </Box>
+                </Box>
+
+                {/* Research References */}
+                <Box sx={{ mb: 4 }}>
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      color: '#1a1a1a',
+                      fontWeight: 600,
+                      mb: 2 
+                    }}
+                  >
+                    Explore the Research that Helped Inform This Perspective
+                  </Typography>
+                  <Box component="ul" sx={{ 
+                    pl: 2,
+                    m: 0,
+                    '& > li': {
+                      mb: 1,
+                      '&:last-child': {
+                        mb: 0
+                      }
+                    }
+                  }}>
+                    {result.researchReferences.map((reference, index) => (
+                      <li key={index}>
+                        <Typography sx={{ color: '#1a1a1a' }}>
+                          {reference}
+                        </Typography>
+                      </li>
+                    ))}
+                  </Box>
+                </Box>
+
+                {/* Download Button */}
+                <Box sx={{ mt: 4, textAlign: 'center' }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    sx={{
+                      mt: 2,
+                      backgroundColor: '#4285f4',
+                      '&:hover': {
+                        backgroundColor: '#2b76f5',
+                      },
+                    }}
+                  >
+                    Download Your Results
+                  </Button>
                 </Box>
               </ResultCard>
             )}
