@@ -262,6 +262,23 @@ const PremiumInsights = () => {
   const router = useRouter();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  // Move all state hooks to the top level
+  const [selectedSection, setSelectedSection] = useState('');
+  const [activeExplore, setActiveExplore] = useState<string | null>(null);
+  const [exploreLoading, setExploreLoading] = useState(false);
+  const [exploreInsight, setExploreInsight] = useState<string | null>(null);
+
+  const [activeInvest, setActiveInvest] = useState('Skills Needed');
+  const [investLoading, setInvestLoading] = useState(false);
+  const [investInsight, setInvestInsight] = useState<string | null>(null);
+
+  const [businessInput, setBusinessInput] = useState('');
+  const [careerInput, setCareerInput] = useState('');
+  const [showBusinessInput, setShowBusinessInput] = useState(false);
+  const [showCareerInput, setShowCareerInput] = useState(false);
+  const [pathwayLoading, setPathwayLoading] = useState(false);
+  const [pathwayInsight, setPathwayInsight] = useState<string | null>(null);
 
   useEffect(() => {
     // Wait for router to be ready
@@ -285,7 +302,7 @@ const PremiumInsights = () => {
       summary: router.query.summary as string,
     });
     setLoading(false);
-  }, [router.isReady, router.query]);
+  }, [router.isReady, router.query, router]);
 
   if (loading) {
     return (
@@ -302,22 +319,6 @@ const PremiumInsights = () => {
       </ThemeProvider>
     );
   }
-
-  const [selectedSection, setSelectedSection] = useState('');
-  const [activeExplore, setActiveExplore] = useState<string | null>(null);
-  const [exploreLoading, setExploreLoading] = useState(false);
-  const [exploreInsight, setExploreInsight] = useState<string | null>(null);
-
-  const [activeInvest, setActiveInvest] = useState('Skills Needed');
-  const [investLoading, setInvestLoading] = useState(false);
-  const [investInsight, setInvestInsight] = useState<string | null>(null);
-
-  const [businessInput, setBusinessInput] = useState('');
-  const [careerInput, setCareerInput] = useState('');
-  const [showBusinessInput, setShowBusinessInput] = useState(false);
-  const [showCareerInput, setShowCareerInput] = useState(false);
-  const [pathwayLoading, setPathwayLoading] = useState(false);
-  const [pathwayInsight, setPathwayInsight] = useState<string | null>(null);
 
   const handleInsightRequest = async (category: string) => {
     if (!userData) return;

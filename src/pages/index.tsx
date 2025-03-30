@@ -265,7 +265,7 @@ export default function Home() {
               Workforce Evolution Model
             </StyledWEM>
             <Typography variant="h5" sx={{ color: 'rgba(255, 255, 255, 0.9)', mb: 3 }}>
-              Assess your career's future in the age of AI
+              Assess your career&apos;s future in the age of AI
             </Typography>
             <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.7)', maxWidth: 600, mx: 'auto', mb: 6 }}>
               Our advanced model analyzes your role against emerging technologies and industry trends to provide personalized insights about potential disruption risks.
