@@ -63,8 +63,8 @@ const PremiumInsights = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   
-  // Move all state hooks to the top level
-  const [selectedSection, setSelectedSection] = useState('');
+  // Initialize with 'explore' section selected
+  const [selectedSection, setSelectedSection] = useState('explore');
   const [activeExplore, setActiveExplore] = useState<string | null>(null);
   const [exploreLoading, setExploreLoading] = useState(false);
   const [exploreInsight, setExploreInsight] = useState<string | null>(null);
@@ -230,330 +230,419 @@ const PremiumInsights = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        {selectedSection === 'explore' && (
-          <Box>
-            <CategoryTitle>Explore Your Score</CategoryTitle>
-            
-            <ButtonGroup 
-              variant="outlined" 
-              sx={{ 
-                width: '100%', 
-                mb: 4,
-                '& .MuiButton-root': {
-                  flex: 1,
-                  color: 'white',
-                  borderColor: 'rgba(255, 255, 255, 0.3)',
-                  '&:hover': {
-                    borderColor: 'rgba(255, 255, 255, 0.5)',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  },
-                  '&.active': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                    borderColor: 'rgba(255, 255, 255, 0.5)',
-                  }
-                }
-              }}
+      <Box sx={{ 
+        minHeight: '100vh',
+        background: '#000',
+        color: 'white',
+        pt: 4,
+        position: 'relative',
+        overflow: 'hidden',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `url(images/digital-arrows-background.jpg)`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          opacity: 0.8,
+          filter: 'brightness(1.2) contrast(1.1)',
+        },
+        '&::after': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'linear-gradient(135deg, rgba(0,0,20,0.65) 0%, rgba(0,10,60,0.75) 100%)',
+        },
+      }}>
+        <Container maxWidth="lg" sx={{ 
+          py: 4,
+          position: 'relative',
+          zIndex: 2,
+        }}>
+          {/* Section Selection Buttons */}
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 2, 
+            mb: 6,
+            '& .MuiButton-root': {
+              flex: 1,
+              py: 2,
+              color: 'white',
+              borderColor: 'rgba(255, 255, 255, 0.3)',
+              '&:hover': {
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              },
+              '&.active': {
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+              }
+            }
+          }}>
+            <Button
+              variant="outlined"
+              onClick={() => setSelectedSection('explore')}
+              className={selectedSection === 'explore' ? 'active' : ''}
             >
-              {['Industry & Market Trends', 'Technology Disruptors', 'Key Role Considerations'].map((category) => (
-                <Button
-                  key={category}
-                  onClick={() => handleExploreClick(category)}
-                  className={activeExplore === category ? 'active' : ''}
-                >
-                  {category}
-                </Button>
-              ))}
-            </ButtonGroup>
-
-            {exploreLoading ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-                <CircularProgress />
-              </Box>
-            ) : exploreInsight && (
-              <Fade in>
-                <Paper sx={{ 
-                  p: 4, 
-                  borderRadius: 3,
-                  background: '#ffffff',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  color: '#1a1a1a',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-                  transition: 'all 0.3s ease',
-                }}>
-                  <Typography sx={{ whiteSpace: 'pre-line' }}>
-                    {exploreInsight}
-                  </Typography>
-                </Paper>
-              </Fade>
-            )}
+              Explore Your Score
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => setSelectedSection('invest')}
+              className={selectedSection === 'invest' ? 'active' : ''}
+            >
+              Invest in Yourself
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => setSelectedSection('pathways')}
+              className={selectedSection === 'pathways' ? 'active' : ''}
+            >
+              Other Pathways
+            </Button>
           </Box>
-        )}
 
-        {selectedSection === 'invest' && (
-          <Box>
-            <CategoryTitle>Invest in Yourself</CategoryTitle>
-            
-            <ButtonGroup 
-              variant="outlined" 
-              sx={{ 
-                width: '100%', 
-                mb: 4,
-                '& .MuiButton-root': {
-                  flex: 1,
-                  color: 'white',
-                  borderColor: 'rgba(255, 255, 255, 0.3)',
-                  '&:hover': {
-                    borderColor: 'rgba(255, 255, 255, 0.5)',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  },
-                  '&.active': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                    borderColor: 'rgba(255, 255, 255, 0.5)',
-                  }
-                }
-              }}
-            >
-              {['Skills Needed', 'Reskilling Options', 'Adjacent Roles'].map((category) => (
-                <Button
-                  key={category}
-                  onClick={() => handleInvestClick(category)}
-                  className={activeInvest === category ? 'active' : ''}
-                >
-                  {category}
-                </Button>
-              ))}
-            </ButtonGroup>
-
-            {investLoading ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-                <CircularProgress />
-              </Box>
-            ) : investInsight && (
-              <Fade in>
-                <Paper sx={{ 
-                  p: 4, 
-                  borderRadius: 3,
-                  background: '#ffffff',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  color: '#1a1a1a',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-                  transition: 'all 0.3s ease',
-                }}>
-                  <Typography sx={{ whiteSpace: 'pre-line' }}>
-                    {investInsight}
-                  </Typography>
-                </Paper>
-              </Fade>
-            )}
-          </Box>
-        )}
-
-        {selectedSection === 'pathways' && (
-          <Box>
-            <CategoryTitle>Other Pathways</CategoryTitle>
-            
-            <ButtonGroup 
-              variant="outlined" 
-              sx={{ 
-                width: '100%', 
-                mb: 4,
-                '& .MuiButton-root': {
-                  flex: 1,
-                  color: 'white',
-                  borderColor: 'rgba(255, 255, 255, 0.3)',
-                  '&:hover': {
-                    borderColor: 'rgba(255, 255, 255, 0.5)',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  }
-                }
-              }}
-            >
-              <Button
-                onClick={() => {
-                  setShowBusinessInput(true);
-                  setShowCareerInput(false);
-                }}
-                sx={{
-                  backgroundColor: showBusinessInput ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
-                }}
-              >
-                Start Your Own Business
-              </Button>
-              <Button
-                onClick={() => {
-                  setShowBusinessInput(false);
-                  setShowCareerInput(true);
-                }}
-                sx={{
-                  backgroundColor: showCareerInput ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
-                }}
-              >
-                Switch Careers
-              </Button>
-            </ButtonGroup>
-
-            {showBusinessInput && (
-              <Box sx={{ mb: 3 }}>
-                <TextField
-                  fullWidth
-                  multiline
-                  rows={3}
-                  variant="outlined"
-                  placeholder="Describe your business idea..."
-                  value={businessInput}
-                  onChange={(e) => setBusinessInput(e.target.value)}
-                  sx={{
-                    mb: 2,
-                    '& .MuiOutlinedInput-root': {
-                      color: 'white',
-                      '& fieldset': {
+          {/* Loading State */}
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <>
+              {/* Existing section content */}
+              {selectedSection === 'explore' && (
+                <Box>
+                  <CategoryTitle>Explore Your Score</CategoryTitle>
+                  
+                  <ButtonGroup 
+                    variant="outlined" 
+                    sx={{ 
+                      width: '100%', 
+                      mb: 4,
+                      '& .MuiButton-root': {
+                        flex: 1,
+                        color: 'white',
                         borderColor: 'rgba(255, 255, 255, 0.3)',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.5)',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.7)',
-                      },
-                    },
-                  }}
-                />
-                <Button
-                  variant="contained"
-                  onClick={() => handlePathwaySubmit('business')}
-                  disabled={!businessInput.trim()}
-                  sx={{
-                    backgroundColor: '#4285f4',
-                    '&:hover': {
-                      backgroundColor: '#2b76f5',
-                    },
-                  }}
-                >
-                  Analyze Business Idea
-                </Button>
-              </Box>
-            )}
+                        '&:hover': {
+                          borderColor: 'rgba(255, 255, 255, 0.5)',
+                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        },
+                        '&.active': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                          borderColor: 'rgba(255, 255, 255, 0.5)',
+                        }
+                      }
+                    }}
+                  >
+                    {['Industry & Market Trends', 'Technology Disruptors', 'Key Role Considerations'].map((category) => (
+                      <Button
+                        key={category}
+                        onClick={() => handleExploreClick(category)}
+                        className={activeExplore === category ? 'active' : ''}
+                      >
+                        {category}
+                      </Button>
+                    ))}
+                  </ButtonGroup>
 
-            {showCareerInput && (
-              <Box sx={{ mb: 3 }}>
-                <TextField
-                  fullWidth
-                  multiline
-                  rows={3}
-                  variant="outlined"
-                  placeholder="What field or career would you like to transition into?"
-                  value={careerInput}
-                  onChange={(e) => setCareerInput(e.target.value)}
-                  sx={{
-                    mb: 2,
-                    '& .MuiOutlinedInput-root': {
-                      color: 'white',
-                      '& fieldset': {
+                  {exploreLoading ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                      <CircularProgress />
+                    </Box>
+                  ) : exploreInsight && (
+                    <Fade in>
+                      <Paper sx={{ 
+                        p: 4, 
+                        borderRadius: 3,
+                        background: '#ffffff',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        color: '#1a1a1a',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                        transition: 'all 0.3s ease',
+                      }}>
+                        <Typography sx={{ whiteSpace: 'pre-line' }}>
+                          {exploreInsight}
+                        </Typography>
+                      </Paper>
+                    </Fade>
+                  )}
+                </Box>
+              )}
+
+              {selectedSection === 'invest' && (
+                <Box>
+                  <CategoryTitle>Invest in Yourself</CategoryTitle>
+                  
+                  <ButtonGroup 
+                    variant="outlined" 
+                    sx={{ 
+                      width: '100%', 
+                      mb: 4,
+                      '& .MuiButton-root': {
+                        flex: 1,
+                        color: 'white',
                         borderColor: 'rgba(255, 255, 255, 0.3)',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.5)',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.7)',
-                      },
-                    },
-                  }}
-                />
-                <Button
-                  variant="contained"
-                  onClick={() => handlePathwaySubmit('career')}
-                  disabled={!careerInput.trim()}
-                  sx={{
-                    backgroundColor: '#4285f4',
-                    '&:hover': {
-                      backgroundColor: '#2b76f5',
-                    },
-                  }}
-                >
-                  Analyze Career Switch
-                </Button>
-              </Box>
-            )}
+                        '&:hover': {
+                          borderColor: 'rgba(255, 255, 255, 0.5)',
+                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        },
+                        '&.active': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                          borderColor: 'rgba(255, 255, 255, 0.5)',
+                        }
+                      }
+                    }}
+                  >
+                    {['Skills Needed', 'Reskilling Options', 'Adjacent Roles'].map((category) => (
+                      <Button
+                        key={category}
+                        onClick={() => handleInvestClick(category)}
+                        className={activeInvest === category ? 'active' : ''}
+                      >
+                        {category}
+                      </Button>
+                    ))}
+                  </ButtonGroup>
 
-            {pathwayLoading && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-                <CircularProgress />
-              </Box>
-            )}
-            
-            {pathwayInsight && (
-              <Fade in>
-                <Paper sx={{ 
-                  p: 4, 
-                  mt: 3, 
-                  borderRadius: 3,
-                  background: '#ffffff',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  color: '#1a1a1a',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-                  transition: 'all 0.3s ease',
-                }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                    <Box>
-                      <Typography variant="h6" sx={{ 
-                        color: '#4285f4',
-                        mb: 1,
-                        fontWeight: 600 
-                      }}>
-                        Analysis
-                      </Typography>
-                      <Typography sx={{ whiteSpace: 'pre-line' }}>
-                        {pathwayInsight.analysis}
-                      </Typography>
+                  {investLoading ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                      <CircularProgress />
                     </Box>
+                  ) : investInsight && (
+                    <Fade in>
+                      <Paper sx={{ 
+                        p: 4, 
+                        borderRadius: 3,
+                        background: '#ffffff',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        color: '#1a1a1a',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                        transition: 'all 0.3s ease',
+                      }}>
+                        <Typography sx={{ whiteSpace: 'pre-line' }}>
+                          {investInsight}
+                        </Typography>
+                      </Paper>
+                    </Fade>
+                  )}
+                </Box>
+              )}
 
-                    <Box>
-                      <Typography variant="h6" sx={{ 
-                        color: '#4285f4',
-                        mb: 1,
-                        fontWeight: 600 
-                      }}>
-                        Key Factors to Consider
-                      </Typography>
-                      <Typography sx={{ whiteSpace: 'pre-line' }}>
-                        {pathwayInsight.keyFactors}
-                      </Typography>
-                    </Box>
+              {selectedSection === 'pathways' && (
+                <Box>
+                  <CategoryTitle>Other Pathways</CategoryTitle>
+                  
+                  <ButtonGroup 
+                    variant="outlined" 
+                    sx={{ 
+                      width: '100%', 
+                      mb: 4,
+                      '& .MuiButton-root': {
+                        flex: 1,
+                        color: 'white',
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                        '&:hover': {
+                          borderColor: 'rgba(255, 255, 255, 0.5)',
+                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        }
+                      }
+                    }}
+                  >
+                    <Button
+                      onClick={() => {
+                        setShowBusinessInput(true);
+                        setShowCareerInput(false);
+                      }}
+                      sx={{
+                        backgroundColor: showBusinessInput ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
+                      }}
+                    >
+                      Start Your Own Business
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setShowBusinessInput(false);
+                        setShowCareerInput(true);
+                      }}
+                      sx={{
+                        backgroundColor: showCareerInput ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
+                      }}
+                    >
+                      Switch Careers
+                    </Button>
+                  </ButtonGroup>
 
-                    <Box>
-                      <Typography variant="h6" sx={{ 
-                        color: '#4285f4',
-                        mb: 1,
-                        fontWeight: 600 
-                      }}>
-                        Next Steps
-                      </Typography>
-                      <Typography sx={{ whiteSpace: 'pre-line' }}>
-                        {pathwayInsight.nextSteps}
-                      </Typography>
+                  {showBusinessInput && (
+                    <Box sx={{ mb: 3 }}>
+                      <TextField
+                        fullWidth
+                        multiline
+                        rows={3}
+                        variant="outlined"
+                        placeholder="Describe your business idea..."
+                        value={businessInput}
+                        onChange={(e) => setBusinessInput(e.target.value)}
+                        sx={{
+                          mb: 2,
+                          '& .MuiOutlinedInput-root': {
+                            color: 'white',
+                            '& fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.3)',
+                            },
+                            '&:hover fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.5)',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.7)',
+                            },
+                          },
+                        }}
+                      />
+                      <Button
+                        variant="contained"
+                        onClick={() => handlePathwaySubmit('business')}
+                        disabled={!businessInput.trim()}
+                        sx={{
+                          backgroundColor: '#4285f4',
+                          '&:hover': {
+                            backgroundColor: '#2b76f5',
+                          },
+                        }}
+                      >
+                        Analyze Business Idea
+                      </Button>
                     </Box>
+                  )}
 
-                    <Box>
-                      <Typography variant="h6" sx={{ 
-                        color: '#4285f4',
-                        mb: 1,
-                        fontWeight: 600 
-                      }}>
-                        {showBusinessInput ? 'Strategic Questions to Consider' : 'Transition Plan'}
-                      </Typography>
-                      <Typography sx={{ whiteSpace: 'pre-line' }}>
-                        {pathwayInsight.reflection}
-                      </Typography>
+                  {showCareerInput && (
+                    <Box sx={{ mb: 3 }}>
+                      <TextField
+                        fullWidth
+                        multiline
+                        rows={3}
+                        variant="outlined"
+                        placeholder="What field or career would you like to transition into?"
+                        value={careerInput}
+                        onChange={(e) => setCareerInput(e.target.value)}
+                        sx={{
+                          mb: 2,
+                          '& .MuiOutlinedInput-root': {
+                            color: 'white',
+                            '& fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.3)',
+                            },
+                            '&:hover fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.5)',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.7)',
+                            },
+                          },
+                        }}
+                      />
+                      <Button
+                        variant="contained"
+                        onClick={() => handlePathwaySubmit('career')}
+                        disabled={!careerInput.trim()}
+                        sx={{
+                          backgroundColor: '#4285f4',
+                          '&:hover': {
+                            backgroundColor: '#2b76f5',
+                          },
+                        }}
+                      >
+                        Analyze Career Switch
+                      </Button>
                     </Box>
-                  </Box>
-                </Paper>
-              </Fade>
-            )}
-          </Box>
-        )}
-      </Container>
+                  )}
+
+                  {pathwayLoading && (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                      <CircularProgress />
+                    </Box>
+                  )}
+                  
+                  {pathwayInsight && (
+                    <Fade in>
+                      <Paper sx={{ 
+                        p: 4, 
+                        mt: 3, 
+                        borderRadius: 3,
+                        background: '#ffffff',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        color: '#1a1a1a',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                        transition: 'all 0.3s ease',
+                      }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                          <Box>
+                            <Typography variant="h6" sx={{ 
+                              color: '#4285f4',
+                              mb: 1,
+                              fontWeight: 600 
+                            }}>
+                              Analysis
+                            </Typography>
+                            <Typography sx={{ whiteSpace: 'pre-line' }}>
+                              {pathwayInsight.analysis}
+                            </Typography>
+                          </Box>
+
+                          <Box>
+                            <Typography variant="h6" sx={{ 
+                              color: '#4285f4',
+                              mb: 1,
+                              fontWeight: 600 
+                            }}>
+                              Key Factors to Consider
+                            </Typography>
+                            <Typography sx={{ whiteSpace: 'pre-line' }}>
+                              {pathwayInsight.keyFactors}
+                            </Typography>
+                          </Box>
+
+                          <Box>
+                            <Typography variant="h6" sx={{ 
+                              color: '#4285f4',
+                              mb: 1,
+                              fontWeight: 600 
+                            }}>
+                              Next Steps
+                            </Typography>
+                            <Typography sx={{ whiteSpace: 'pre-line' }}>
+                              {pathwayInsight.nextSteps}
+                            </Typography>
+                          </Box>
+
+                          <Box>
+                            <Typography variant="h6" sx={{ 
+                              color: '#4285f4',
+                              mb: 1,
+                              fontWeight: 600 
+                            }}>
+                              {showBusinessInput ? 'Strategic Questions to Consider' : 'Transition Plan'}
+                            </Typography>
+                            <Typography sx={{ whiteSpace: 'pre-line' }}>
+                              {pathwayInsight.reflection}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Paper>
+                    </Fade>
+                  )}
+                </Box>
+              )}
+            </>
+          )}
+        </Container>
+      </Box>
     </ThemeProvider>
   );
 };
