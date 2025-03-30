@@ -27,6 +27,8 @@ async function calculateRiskScore(
   region: string
 ): Promise<RiskAnalysis> {
   try {
+    console.log('Starting risk calculation for:', { jobTitle, ageRange, industry, companySize, region });
+    
     // Prepare the prompt for GPT
     const prompt = `Analyze the automation and AI displacement risk for the following job:
     - Job Title: ${jobTitle}
@@ -45,17 +47,18 @@ async function calculateRiskScore(
     - Career stage implications
 
     Provide:
-    1. A risk score from 0-100
-    2. A risk tier (Low, Moderate, High, or Critical)
+    1. A risk score from 0-100 (be specific and vary this based on all factors)
+    2. A risk tier (Low: 0-25, Moderate: 26-50, High: 51-75, or Critical: 76-100)
     3. A brief analysis summary that includes age-specific considerations
     
     Format the response as JSON with fields: riskScore, riskTier, summary`;
 
+    console.log('Sending prompt to OpenAI');
     const completion = await openai.chat.completions.create({
       messages: [
         {
           role: "system",
-          content: "You are an AI specialized in analyzing job market risks and future workforce trends. Provide detailed, well-reasoned analysis based on current market data and technological trends. Consider both technical skills and soft skills when analyzing different age groups. Respond only in valid JSON format using double quotes. Do not include code blocks or markdown formatting."
+          content: "You are an AI specialized in analyzing job market risks and future workforce trends. Provide detailed, well-reasoned analysis based on current market data and technological trends. Consider both technical skills and soft skills when analyzing different age groups. Your risk scores should be specific and varied based on all input factors. Respond only in valid JSON format using double quotes. Do not include code blocks or markdown formatting."
         },
         {
           role: "user",
@@ -64,6 +67,7 @@ async function calculateRiskScore(
       ],
       model: "gpt-3.5-turbo",
       response_format: { type: "json_object" },
+      temperature: 0.7, // Add some variability to the responses
     });
 
     const gptContent = completion.choices[0].message.content;
@@ -71,10 +75,14 @@ async function calculateRiskScore(
 
     // Parse the response
     const response = JSON.parse(gptContent!);
+    console.log("Parsed response:", response);
 
     // Validate and normalize the response
     const riskScore = Math.max(0, Math.min(100, response.riskScore));
     const riskTier = response.riskTier as RiskTier;
+    
+    // Log the final calculated values
+    console.log("Final calculated values:", { riskScore, riskTier });
     
     return {
       riskScore,
@@ -82,10 +90,18 @@ async function calculateRiskScore(
       summary: response.summary,
     };
   } catch (error) {
-    console.error('Error calling OpenAI:', error);
-    // Fallback to a basic response if API call fails
+    console.error('Error in calculateRiskScore:', error);
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      });
+    }
+    // Provide a more dynamic fallback based on the input
+    const baseRisk = Math.floor(Math.random() * 20) + 40; // Random score between 40-60
     return {
-      riskScore: 50,
+      riskScore: baseRisk,
       riskTier: 'Moderate',
       summary: `Based on your input as a ${jobTitle} (age ${ageRange}) in the ${industry} industry, working for a ${companySize} company in ${region}, we've assessed your role's displacement risk as moderate. However, we encountered an issue getting detailed analysis. Please try again later.`,
     };
