@@ -261,15 +261,6 @@ export default function Home() {
       }}>
         <Container maxWidth="lg">
           <HeroSection>
-            <StyledWEM>
-              Workforce Evolution Model
-            </StyledWEM>
-            <Typography variant="h5" sx={{ color: 'rgba(255, 255, 255, 0.9)', mb: 3 }}>
-              Assess your career&apos;s future in the age of AI
-            </Typography>
-            <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.7)', maxWidth: 600, mx: 'auto', mb: 6 }}>
-              Our advanced model analyzes your role against emerging technologies and industry trends to provide personalized insights about potential disruption risks.
-            </Typography>
           </HeroSection>
           <FormContainer id="risk-assessment-form">
             <form onSubmit={handleSubmit}>
@@ -455,8 +446,8 @@ export default function Home() {
                 </Typography>
                 
                 <PremiumSection>
-                  <Typography variant="h5" sx={{ mb: 2, color: 'white', textAlign: 'center' }}>
-                    Want deeper insights into your career risk?
+                  <Typography variant="h5" sx={{ mb: 2, color: '#6633ee', fontWeight: 600, textAlign: 'center' }}>
+                    Want to better understand your score, in-demand skills, and options for the future?
                   </Typography>
                   <Box sx={{ textAlign: 'center' }}>
                     <Link 
