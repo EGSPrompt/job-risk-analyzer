@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 type RiskLevel = 'Low' | 'Moderate' | 'High' | 'Critical';
 
@@ -185,6 +186,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<RiskAnalysis | null>(null);
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -197,7 +199,6 @@ export default function Home() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    
     try {
       const response = await fetch('/api/analyze-risk', {
         method: 'POST',
@@ -206,17 +207,30 @@ export default function Home() {
         },
         body: JSON.stringify(formData),
       });
-      
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to analyze risk');
+        throw new Error('Failed to analyze risk');
       }
 
       const data = await response.json();
       setResult(data);
+
+      // Combine form data with analysis results
+      const userData = {
+        ...formData,
+        riskScore: data.riskScore,
+        riskTier: data.riskTier,
+        summary: data.summary
+      };
+
+      // Navigate to premium insights with complete data
+      router.push({
+        pathname: '/premium-insights',
+        query: { data: encodeURIComponent(JSON.stringify(userData)) },
+      });
     } catch (error) {
       console.error('Error analyzing risk:', error);
-      setError(error instanceof Error ? error.message : 'An error occurred while analyzing risk');
+      setError('Failed to analyze risk. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -443,28 +457,35 @@ export default function Home() {
                   {result.summary}
                 </Typography>
                 
-                <PremiumSection>
-                  <Typography variant="h5" sx={{ mb: 2, color: '#6633ee', fontWeight: 600, textAlign: 'center' }}>
-                    Want to better understand your score, in-demand skills, and options for the future?
-                  </Typography>
-                  <Box sx={{ textAlign: 'center' }}>
-                    <Link 
-                      href={{
-                        pathname: '/premium_insights',
-                        query: {
-                          ...formData,
-                          riskScore: result?.riskScore,
-                          riskTier: result?.riskTier,
-                          summary: result?.summary
-                        }
-                      }} 
+                <Box sx={{ mt: 4, textAlign: 'center' }}>
+                  <Link
+                    href={{
+                      pathname: '/premium-insights',
+                      query: { data: encodeURIComponent(JSON.stringify({
+                        ...formData,
+                        riskScore: result.riskScore,
+                        riskTier: result.riskTier,
+                        summary: result.summary
+                      })) },
+                    }}
+                    passHref
+                  >
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      size="large"
+                      sx={{
+                        mt: 2,
+                        backgroundColor: '#4285f4',
+                        '&:hover': {
+                          backgroundColor: '#2b76f5',
+                        },
+                      }}
                     >
-                      <PremiumButton>
-                        Get Premium Insights
-                      </PremiumButton>
-                    </Link>
-                  </Box>
-                </PremiumSection>
+                      Get Premium Insights
+                    </Button>
+                  </Link>
+                </Box>
               </ResultCard>
             )}
           </FormContainer>
